@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "WeightJourney",
+			"path": ".."
+		},
+		{
+			"name": "ios",
+			"path": "../../../Downloads/WeightJourney-main/ios"
+		}
+	],
+	"settings": {}
+}
