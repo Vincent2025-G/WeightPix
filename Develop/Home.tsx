@@ -1163,7 +1163,7 @@ const styles = StyleSheet.create({
         setFullbodyPath("");
          FastImage.clearDiskCache();
          FastImage.clearMemoryCache();
-         setImageData(null);
+          setImageData(null);
          GlobalState.uid = "";
          GlobalState.email = "";
         navigation.navigate('Login');

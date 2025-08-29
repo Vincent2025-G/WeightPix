@@ -45,9 +45,7 @@ import {
 ViewToken
 
 } from 'react-native';
-import { SearchBar } from 'react-native-screens';
-import { setDate, startOfSecond } from 'date-fns';
-import { GoogleAuthProvider } from '@react-native-firebase/auth';
+
 // import { PinchGesture } from 'react-native-gesture-handler/lib/typescript/handlers/gestures/pinchGesture';
 
 
@@ -376,6 +374,7 @@ export const SecondPage = ({navigation, route}: Prop): React.JSX.Element => {
   const updatedPath = RNFS.DocumentDirectoryPath.split('/')[6];
   const [alreadyHasData, setAlreadyHasData] = useState(false);
   const [storingDone, setStoringDone] = useState<boolean | null>(null);
+  const [loadError, setLoadError] = useState(false);
   
   const {checkLocal} = useCheckSubscriptionInfo();
   
@@ -384,7 +383,7 @@ export const SecondPage = ({navigation, route}: Prop): React.JSX.Element => {
 
 useEffect(() => {
   const checkSubscription = async () => {
-    checkLocal(subInfoPath, false);
+    checkLocal(subInfoPath, imageData?.length ?? 0);
   }
 
   checkSubscription();
@@ -431,7 +430,7 @@ useEffect(() => {
   }
 
   convertToLocal();
- }, [storingDone])
+ }, [storingDone, imageData])
 
 
 
@@ -462,7 +461,7 @@ useEffect(() => {
     if(!triedToRetrieveLocally.current){
       triedToRetrieveLocally.current = true;
     try{ 
-      // console.log("Called this bullshit!")
+      
       console.log("Current object path: " + objPath);
 
       const storedImageData = await RNFS.readFile(`${objPath}`, 'utf8');
@@ -509,40 +508,11 @@ useEffect(() => {
   }
 
    
-      // useEffect(() => {
-      //       const storeData = async () => {
-      //         console.log("Global array length " + globalStoredData.length)
-      //         if(globalStoredData.length === imageData?.length){
-      //           for(const item of globalStoredData){
-      //             console.log("New image data: " + item.selfie);
-      //           }
-      //           let finalData = []
-            
-      //       if(alreadyHasData){
-      //         finalData = [...imageData!, ...globalStoredData];
-      //       }
-      //       else{
-      //         finalData = globalStoredData;
-      //       }
-          
-      //       setImageData(finalData)
-      //       await RNFS.writeFile(objPath, JSON.stringify(finalData as imageDataType[]), 'utf8');
-      //           }
-
-            
-      //     }
-
-      //   storeData();
-      //   }, [globalStoredData])
-    
-
-
-  //   getFromLocalStorage();
-  // }, []);
+   
 
   const storeAsyncData = async (inputData: imageDataType[]) => {
     console.log("store async data entered" + " " + inputData.length);
-    let newImageData: imageDataType[] = imageData!;
+    let newImageData: imageDataType[] = [];
 
     let exists = await RNFS.exists(userDir);
     if(!exists){
@@ -614,7 +584,7 @@ useEffect(() => {
     }
 
     setImageData(newImageData);
-    setFiltered(newImageData);
+    // setFiltered(newImageData);
     setStoringDone(true);
     
     console.log("The storing is done!");
@@ -631,18 +601,7 @@ useEffect(() => {
     
     setFiltered(imageData!);
   }, [imageData])
-
-  // useEffect(() =>{
-  //   const congratulate = () => {
-  //     if(imageData != null && imageData.length != 0 && imageData[imageData.length - 1].weight === goalWeight){
-        
-  //     }
-  //   }
-
-  //   congratulate();
-  // }, [])
-
-
+  
  
 
   useEffect(() => {
@@ -683,7 +642,7 @@ useEffect(() => {
       console.log("stored image obj: " + storedImageObj.length)
 
       if((imageData != null && exists && imageData.length > storedImageObj.length)){
-        console.log("Image Data larger!");
+        console.log("Image Data larger! " + imageData.length);
         return;
       }
    
@@ -704,7 +663,7 @@ useEffect(() => {
     }
 
     setImages();
-  }, [storingDone])
+  }, [storingDone, loadError])
 
   useEffect(() =>{
     const checkIfDifference = async () => {
@@ -956,651 +915,7 @@ useEffect(() => {
   
    const [filteredImageData, setFiltered] = useState<imageDataType[]>(imageData!);
 
-const fakeDates = ["04/17/91", "04/02/92", "02/02/93",
-"03/18/96",
-"06/02/99",
-"01/25/01",
-"01/14/02",
-"08/12/04",
-"04/01/05",
-"06/22/05",
-"08/16/07",
-"02/20/09",
-"10/03/11",
-"12/25/15",
-"05/27/16",
-"01/09/25",
-"11/19/26",
-"05/21/27",
-"07/20/25",
-"10/11/29",
-"07/16/31",
-"11/21/33",
-"06/14/39",
-"06/16/39",
-"07/24/25", 
-"09/09/25",
-"11/29/25",
-"04/05/25",
-"01/03/25",
-"12/25/25",
-"06/14/25",
-"09/08/25",
-"03/18/25",
-"09/13/25",
-"11/14/25",
-"07/25/25",
-"06/08/25",
-"02/02/25",
-"02/12/25",
-"10/31/25",
-"11/25/25",
-"10/23/25",
-"07/10/25",
-"08/31/25",
-"12/16/25",
-"01/15/25",
-"06/16/25",
-"05/03/25",
-"08/16/25",
-"09/13/25",
-"11/14/25",
-"07/25/25",
-"06/08/25",
-"02/02/25",
-"02/12/25",
-"10/31/25",
-"11/25/25",
-"10/23/25",
-"07/10/25",
-"08/31/25",
-"12/16/25",
-"01/15/25",
-"06/16/25",
-"05/03/25",
-"08/16/25",
-"09/13/25",
-"11/14/25",
-"07/25/25",
-"06/08/25",
-"02/02/25",
-"02/12/25",
-"10/31/25",
-"11/25/25",
-"10/23/25",
-"07/10/25",
-"08/31/25",
-"12/16/25",
-"01/15/25",
-"06/16/25",
-"05/03/25",
-"08/16/25",
-"09/13/25",
-"11/14/25",
-"07/25/25",
-"06/08/25",
-"02/02/25",
-"02/12/25",
-"10/31/25",
-"11/25/25",
-"10/23/25",
-"07/10/25",
-"08/31/25",
-"12/16/25",
-"01/15/25",
-"06/16/25",
-"05/03/25",
-"08/16/25",
-"09/13/25",
-"11/14/25",
-"07/25/25",
-"06/08/25",
-"02/02/25",
-"02/12/25",
-"10/31/25",
-"11/25/25",
-"10/23/25",
-"07/10/25",
-"08/31/25",
-"12/16/25",
-"01/15/25",
-"06/16/25",
-"05/03/25",
-"08/16/25",
-"03/18/96",
-"06/02/99",
-"01/25/01",
-"01/14/02",
-"08/12/04",
-"04/01/05",
-"06/22/05",
-"08/16/07",
-"02/20/09",
-"10/03/11",
-"12/25/15",
-"05/27/16",
-"01/09/25",
-"11/19/25",
-"05/21/27",
-"07/20/27",
-"10/11/29",
-"07/16/31",
-"11/21/33",
-"06/14/39",
-"06/16/39",
-"07/24/40", 
-"09/09/25",
-"11/29/25",
-"04/05/25",
-"01/03/25",
-"12/25/25",
-"06/14/25",
-"09/08/25",
-"03/18/25",
-"09/13/25",
-"11/14/25",
-"07/25/25",
-"06/08/25",
-"02/02/25",
-"02/12/25",
-"10/31/25",
-"11/25/25",
-"10/23/25",
-"07/10/25",
-"08/31/25",
-"12/16/25",
-"01/15/25",
-"06/16/25",
-"05/03/25",
-"08/16/25",
-"09/13/25",
-"11/14/25",
-"07/25/25",
-"06/08/25",
-"02/02/25",
-"02/12/25",
-"10/31/25",
-"11/25/25",
-"10/23/25",
-"07/10/25",
-"08/31/25",
-"12/16/25",
-"01/15/25",
-"06/16/25",
-"05/03/25",
-"08/16/25",
-"09/13/25",
-"11/14/25",
-"07/25/25",
-"06/08/25",
-"02/02/25",
-"02/12/25",
-"10/31/25",
-"11/25/25",
-"10/23/25",
-"07/10/25",
-"08/31/25",
-"12/16/25",
-"01/15/25",
-"06/16/25",
-"05/03/25",
-"08/16/25",
-"09/13/25",
-"11/14/25",
-"07/25/25",
-"06/08/25",
-"02/02/25",
-"02/12/25",
-"10/31/25",
-"11/25/25",
-"10/23/25",
-"07/10/25",
-"08/31/25",
-"12/16/25",
-"01/15/25",
-"06/16/25",
-"05/03/25",
-"08/16/25",
-"09/13/25"
-]
 
-// console.log(" Dates" + fakeDates.length); 
-const fakeNumber = [209,
- 34,
-354,
- 27,
- 81,
- 75,
-241,
-129,
- 64,
- 41,
-148,
- 33,
-211,
- 32,
- 21,
-216,
-340,
-256,
- 58,
-205,
-387,
-173,
-110,
-212,
-278,
-281,
-  3,
- 36,
-185,
-288,
- 78,
-383,
-297,
-250,
-103,
-201,
-179,
-388,
-142,
-165,
-303,
-367,
- 11,
- 74,
-399,
-268,
-262,
-267,
- 28,
-144,
-187,
-331,
-292,
-227,
-106,
- 26,
- 47,
-344,
-237,
-166,
-244,
- 19,
-139,
-190,
-177,
-222,
- 84,
- 82,
-327,
-301,
-138,
-298,
-330,
-184,
-272,
- 50,
-210,
-373,
-299,
-168,
-397,
-158,
- 29,
-149,
-141,
-377,
- 71,
-125,
-258,
-389,
-253,
-174,
-213,
- 15,
-308,
-282,
-323,
- 22,
-336,
-309,
-163,
-154,
- 13,
- 25,
-226,
-164,
-322,
-189,
-207,
-356,
-223,
-122,
-  6,
-140,
-398,
-381,
-393,
- 86,
-352,
- 72,
-279,
-120,
-176,
- 39,
-364,
-202,
-186,
-358,
-  8,
-380,
-316,
-311,
-221,
-151,
-112,
-350,
-196,
-229,
- 16,
-317,
-111,
-390,
-290,
- 96,
-  5,
-192,
- 67,
- 51,
-145,
-240,
-233,
- 77,
-333,
-293,
-370,
-280,
-379,
-300,
-123,
-104,
-391,
-160,
-195,
-361,
- 95,
-162,
-175,
-321,
- 48,
-351,
-289,
- 73,
-234,
-324,
-130,
- 85,
-254,
- 98,
- 93,
-334,
- 62,
-126,
-365,
-314,
-114,
- 12,
-200,
-265,
-152,
-337,
-102,
-384,
-285,
-191,
-199,
- 79,
-259,
- 38,
- 61,
- 20,
-396,
-182,
-325,
-349,
- 30,
-353,
- 90,
-10];
-
-// const fakeNumber = [
-// 184,
-// 181,
-// 197,
-// 195,
-// 186,
-// 195,
-// 186,
-// 180,
-// 189,
-// 196,
-// 197,
-// 198,
-// 199,
-// 200,
-// 189,
-// 190,
-// 199,
-// 189,
-// 194,
-// 194,
-// 180,
-// 193,
-// 200,
-// 180,
-// 194,
-// 191,
-// 180,
-// 190,
-// 196,
-// 182,
-// 191,
-// 181,
-// 180,
-// 196,
-// 183,
-// 196,
-// 185,
-// 190,
-// 188,
-// 187,
-// 184,
-// 191,
-// 185,
-// 192,
-// 193,
-// 197,
-// 188,
-// 181,
-// 192,
-// 193,
-// 191,
-// 188,
-// 185,
-// 198,
-// 192,
-// 181,
-// 190,
-// 198,
-// 189,
-// 182,
-// 188,
-// 187,
-// 191,
-// 196,
-// 196,
-// 191,
-// 199,
-// 200,
-// 185,
-// 186,
-// 196,
-// 183,
-// 181,
-// 192,
-// 196,
-// 189,
-// 190,
-// 195,
-// 199,
-// 196,
-// 197,
-// 196,
-// 190,
-// 182,
-// 187,
-// 188,
-// 183,
-// 181,
-// 180,
-// 187,
-// 193,
-// 190,
-// 188,
-// 195,
-// 192,
-// 188,
-// 196,
-// 197,
-// 196,
-// 187,
-// 190,
-// 186,
-// 198,
-// 196,
-// 199,
-// 180,
-// 192,
-// 193,
-// 200,
-// 180,
-// 195,
-// 193,
-// 186,
-// 187,
-// 190,
-// 189,
-// 191,
-// 195,
-// 193,
-// 183,
-// 181,
-// 187,
-// 197,
-// 186,
-// 193,
-// 183,
-// 182,
-// 192,
-// 191,
-// 197,
-// 198,
-// 194,
-// 187,
-// 193,
-// 186,
-// 198,
-// 182,
-// 192,
-// 184,
-// 197,
-// 190,
-// 191,
-// 192,
-// 183,
-// 194,
-// 194,
-// 199,
-// 193,
-// 188,
-// 191,
-// 191,
-// 186,
-// 195,
-// 188,
-// 196,
-// 187,
-// 196,
-// 183,
-// 193,
-// 181,
-// 181,
-// 192,
-// 200,
-// 189,
-// 185,
-// 198,
-// 188,
-// 200,
-// 180,
-// 196,
-// 193,
-// 192,
-// 200,
-// 185,
-// 186,
-// 189,
-// 198,
-// 191,
-// 181,
-// 185,
-// 181,
-// 198,
-// 197,
-// 197,
-// 200,
-// 196,
-// 195,
-// 186,
-// 187,
-// 200,
-// 183,
-// 186,
-// 194,
-// 196,
-// 184,
-// 184,
-// 189,
-// 196,
-// 188,
-// 186,
-// 181,
-// 187,
-// 181,
-// 200,
-// 191,
-// 196,
-// 181, 
-// 181
-// ]
-
-// fakeNumber.sort();
-
-// let fakeNewData: imageDataType[] = [{selfie: imageData![0].selfie, fullBody: imageData![0].fullBody, weight: imageData![0].weight, date: '01/10/20', notes: imageData![0].notes, selfieName: imageData![0].selfieName, fullBodyName: imageData![0].fullBodyName}]
-
-//   for(let i = 0; i < fakeNumber.length; i++){
-//      const data = {selfie: imageData![0].selfie, fullBody: imageData![0].fullBody, weight: fakeNumber[i] + "", date: fakeDates[i], notes: imageData![0].notes, selfieName: imageData![0].selfieName, fullBodyName: imageData![0].fullBodyName}
-//      fakeNewData = [...fakeNewData, data];
-//   }
-
-  
-
-//   fakeNewData.sort((a, b) => parseInt(a.weight) - parseInt(b.weight))
-
-  // fakeNewData.sort((a, b) => a.date.localeCompare(b.date))
-
-//   console.log(fakeNewData.length + " Fake data length") 
   
   
   
@@ -2158,7 +1473,8 @@ const fakeNumber = [209,
 
 
               selfieLoadedList.current[index] = false
-              restoreLocalData();
+              setLoadError(true);
+              // restoreLocalData();
               
             }
 
@@ -2271,7 +1587,7 @@ const fakeNumber = [209,
             shadowColor: '#00ffff'}}>
                 <GestureDetector gesture={pinchPanGesture}>
                   <Animated.View style={animatedValue}>
-                 <FastImage style={bigSelfieLoadedList.current[currIndex] ? styles.bigImage2 : styles.bigImageLoading2} source={{uri: currImage?.fullBody}} onLoadEnd={
+                 <FastImage style={bigFullBodyLoadedList.current[currIndex] ? styles.bigImage2 : styles.bigImageLoading2} source={{uri: currImage?.fullBody}} onLoadEnd={
                    () => bigFullBodyLoadedList.current[currIndex] = true
                    }
                    onError={() => bigFullBodyLoadedList.current[currIndex] = false}
@@ -2309,7 +1625,7 @@ const fakeNumber = [209,
                         Alert.alert('Attention', 'You have already taken your max photos for the day!');
                         }
                         else if(storingDone === null || storingDone === false){
-                          Alert.alert('Attention', 'Please wait until your images have loaded!');
+                          Alert.alert('Attention', 'Please wait until your images have downloaded!');
                         } 
                       }
                      }} style={styles.navigationButton}>
@@ -2317,7 +1633,18 @@ const fakeNumber = [209,
                    </TouchableOpacity>
                  </View>
                  <View style={{justifyContent: 'center'}}>
-                 <TouchableOpacity onPress={() => {navigation.navigate('ChartPage', {imageData: imageData!})}} style={styles.navigationButton}>
+                 <TouchableOpacity onPress={() => {
+                  navigation.navigate('ChartPage', {imageData: imageData!}) 
+                  // if(storingDone == true){ 
+                  // navigation.navigate('ChartPage', {imageData: imageData!}) 
+                  // }
+                  // else if(storingDone === null || storingDone === false){
+                  //         Alert.alert('Attention', 'Please wait until your images have loaded!');
+                  //       } 
+                
+                }}
+                  style={styles.navigationButton}
+                  >
                      <Image source={require('./chartIcon.png')} style={{width: 35, height: 35}}/>
                    </TouchableOpacity>
                  </View>

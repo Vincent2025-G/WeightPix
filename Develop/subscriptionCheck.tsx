@@ -45,7 +45,7 @@ const navigation = useNavigation<Prop>();
 const state = navigation.getState();
 const currentScreen = state.routes[state.index].name;
 
-const {setValidSubscription} = useContext(UserData);
+const {setValidSubscription, imageData} = useContext(UserData);
 const userDir = `${RNFS.DocumentDirectoryPath}/${GlobalState.uid}`;
 
 const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new Date(), paid: boolean) => {
@@ -66,7 +66,7 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
         }
     } 
 
-     const validateReceipt = async (receipt: string, subInfoPath: string, page: string, onPayment: boolean): Promise<boolean> => {
+     const validateReceipt = async (receipt: string, subInfoPath: string, page: string, photoLength: number): Promise<boolean> => {
                     const controller = new AbortController();
                     const timeout = setTimeout(() => controller.abort(), 8000);
                     const result = await fetch("http://192.168.1.12:5001/weightwatcher-2d8cf/us-central1/receiptProcessor", {     
@@ -81,7 +81,7 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                         Alert.alert("Connection issue", "Couldn’t reach server to validate subscription. Please check your internet and try again.",
                                 [
                                     {text: "Cancel", style: "cancel"},
-                                    {text: "Retry", style: 'default', onPress: () => validateReceipt(receipt, subInfoPath, page, onPayment)}
+                                    {text: "Retry", style: 'default', onPress: () => validateReceipt(receipt, subInfoPath, page, photoLength)}
                                 ]);
                     } 
                     else if (message.includes("status:210")) {
@@ -107,7 +107,7 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                     if(expired){
                         console.log("Expired"); 
                         storeReceiptData(subInfoPath, expirationDate, false);
-                        if(!onPayment){
+                        if(currentScreen != "Payment"){
                             Alert.alert("Please subscribe!");
                             navigation.navigate("Payment");
                         }
@@ -125,19 +125,24 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                     // console.log("From the local storage: " + data);
 
                     
-                    
-                    if((currentScreen == "Payment") || (currentScreen == "Login") && GlobalState.uid.length > 0){
+                    if((currentScreen == "Payment" || currentScreen == 'Login') && GlobalState.uid.length > 0 && photoLength > 0){
+                        navigation.navigate('Data', {imageData: null});
+                    }
+                    else if((currentScreen == "Payment") || (currentScreen == "Login") && GlobalState.uid.length > 0){
                         navigation.navigate("Home");
                     }
                     else if(currentScreen == "Data" && GlobalState.uid.length > 0){
                          navigation.navigate('Data', {imageData: null});
+                    }
+                    else if(currentScreen == "Home" && GlobalState.uid.length > 0){
+                         navigation.navigate('Home');
                     }
 
                     return expired;
       }
 
 
-    const fetchFromDatabase = async (subInfoPath: string, page: string) => {
+    const fetchFromDatabase = async (subInfoPath: string, page: string, photoLength: number) => {
             try{
                 const dbCollection = collection(firestore, "Users");
                 const docRef = doc(dbCollection, GlobalState.uid);
@@ -147,6 +152,7 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                     console.log("Database portion exists!");
                     const user = docSnap.data() as UserDataTypes;
 
+                    // User has an account but never paid or renewed.
                     if(user!.hasOwnProperty("paid")){
                         if(!user!.paid){
                             Alert.alert("Please subscribe!");
@@ -155,12 +161,13 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                         }
                     }
                     
+                    // User has never had a subscription before.
                     if(!user!.hasOwnProperty("expirationDate")){
                         console.log("Doesn't have it!");
                         try{
                             const receiptInfo = await getReceiptIOS({forceRefresh: true});
                             console.log("Receipt from the data: " + receiptInfo);
-                            validateReceipt(receiptInfo!, subInfoPath, page, false);
+                            validateReceipt(receiptInfo!, subInfoPath, page, photoLength);
                         }
                         catch (error){
                             console.log("Error: " + error);
@@ -181,7 +188,7 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                         
                         await RNFS.writeFile(subInfoPath, JSON.stringify(newSubInfo), 'utf8')
                     
-                         if(page == "Home" && GlobalState.uid.length > 0){
+                        if(page == "Home" && GlobalState.uid.length > 0){
                             navigation.navigate("Home");
                         }
                         else if(page == "Data" && GlobalState.uid.length > 0){
@@ -192,7 +199,7 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                         try{
                             const receiptInfo = await getReceiptIOS({forceRefresh: true});
                             console.log("Receipt from the data: " + receiptInfo);
-                            validateReceipt(receiptInfo!, subInfoPath, page, false);
+                            validateReceipt(receiptInfo!, subInfoPath, page, photoLength);
                         }
                         catch (error){
                             console.log("Error: " + error);
@@ -209,13 +216,14 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
             }
         }
 
-    const checkLocal = async (subInfoPath: string, login: boolean) => {
+    const checkLocal = async (subInfoPath: string, photoLength: number) => {
          try{
                         const exists = await RNFS.exists(subInfoPath);
         
                         if(!exists){
                             console.log("Doesn't exist!")
-                            fetchFromDatabase(subInfoPath, "Home");
+                            fetchFromDatabase(subInfoPath, currentScreen, photoLength);
+                            return;
                         }
                         const subscriptionStringInfo = await RNFS.readFile(subInfoPath);
                         const subscriptionInfo = JSON.parse(subscriptionStringInfo);
@@ -228,12 +236,15 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                             if(subDate > now){
                                 setValidSubscription(true);
                                 console.log("Valid local expiration date!");
-                                if(login){
+                                if(currentScreen == 'Login' && photoLength > 0){
+                                    navigation.navigate('Data', {imageData: null});
+                                }
+                                else if(currentScreen == 'Login'){
                                     navigation.navigate('Home');
                                 }
                             }
                             else{
-                                fetchFromDatabase(subInfoPath, "Home");
+                                fetchFromDatabase(subInfoPath, currentScreen, photoLength);
                             }
                         }
                         else{
