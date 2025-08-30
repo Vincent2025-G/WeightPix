@@ -392,6 +392,21 @@ const styles = StyleSheet.create({
       marginTop: 10,
       marginBottom: 10
     },
+    userNameInput:{
+      width: 200, 
+      height: 30, 
+      backgroundColor: 'white', 
+      borderRadius: 15, 
+      fontSize: 20,
+      color: 'black',
+      borderWidth: 1,
+      
+      textAlign: 'center',
+      alignItems: 'center', 
+      justifyContent: 'center',
+      marginTop: 10,
+      marginBottom: 10
+    },
     timerText:{
       fontSize: 80,
       color: 'white',
@@ -443,28 +458,30 @@ const styles = StyleSheet.create({
   // console.log("Current object path: " + objPath);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-     try{
-        const dbCollection = collection(firestore, 'Users'); 
-        const docRef = doc(dbCollection, GlobalState.uid);
-        const docSnap = await getDoc(docRef); 
-        console.log("Fetching user data ");
-       // Checking if user exists
-       if(docSnap.exists()){
-        const user = docSnap.data() as UserDataTypes;
-        setUsername(user?.username)
-        // console.log("This is the data " + user?.username)
-       }
-       else{
-        console.log("User not found!");
-       }
-     }
-     catch(error){
-       console.log("Couldn't fetch user data" + error)
-     }
-    }
+    if(username == ''){
+      const fetchUserData = async () => {
+      try{
+          const dbCollection = collection(firestore, 'Users'); 
+          const docRef = doc(dbCollection, GlobalState.uid);
+          const docSnap = await getDoc(docRef); 
+          console.log("Fetching user data ");
+        // Checking if user exists
+        if(docSnap.exists()){
+          const user = docSnap.data() as UserDataTypes;
+          setUsername(user?.username)
+          // console.log("This is the data " + user?.username)
+        }
+        else{
+          console.log("User not found!");
+        }
+      }
+      catch(error){
+        console.log("Couldn't fetch user data" + error)
+      }
+      }
 
-    fetchUserData();
+      fetchUserData();
+  }
  }, [])
 
     // useEffect(() => {
@@ -618,6 +635,8 @@ const styles = StyleSheet.create({
   const [confirmPassword, setConfirmPassword] = useState(false);
   const [hasNewWeight, sethasNewWeight] = useState(false);
   const [newWeight, setNewWeight] = useState('');
+  const [newUserName, setNewUserName] = useState('');
+  const [hasNewName, setHasNewName] = useState(false);
 
   // const [unit, setUnit] = useState('lb');
   const [changeUnit, setChangeUnit] = useState(false);
@@ -634,6 +653,7 @@ const styles = StyleSheet.create({
 
   const passwordRef = useRef<RNTextInput>(null);
   const weightRef = useRef<RNTextInput>(null);
+  const usernameRef = useRef<RNTextInput>(null);
 
   const tour = useCopilot();
   const WalkthroughableView = walkthroughable(View) 
@@ -778,6 +798,12 @@ const styles = StyleSheet.create({
         weightRef.current?.focus();
       }
     }, [hasNewWeight])
+
+    useEffect(() => {
+      if(hasNewName){
+        usernameRef.current?.focus();
+      }
+    }, [hasNewName])
 
     useEffect(() => {
       const getUnit = async () => {
@@ -1270,6 +1296,21 @@ const styles = StyleSheet.create({
        return false;
     }
 
+
+    const confirmNewName = async () => { 
+       try{
+        const dbCollection = collection(firestore, 'Users');
+        const docRef = doc(dbCollection, GlobalState.uid);
+        await updateDoc(docRef, {username: newUserName});
+        setUsername(newUserName);
+        setHasNewName(false);
+        Alert.alert('Your new username has been updated!');
+       }
+       catch(error){
+         console.log('Error: ' + error);
+       }
+    }
+
     const confirmNewWeight = async () => {
       if(newWeight.length < 2){
         Alert.alert("Please enter a valid weight!");
@@ -1387,6 +1428,28 @@ const styles = StyleSheet.create({
           }
 
 
+          {hasNewName ? 
+          <View style={styles.confirmPasswordContainer}>
+
+                <TouchableOpacity style={{zIndex: 1, position: 'absolute', left: 5, top: 5, width: 30, height: 30,
+                  alignItems: 'center', justifyContent: 'center'}} onPress={() => setHasNewName(false)}>
+                    <Text style={{fontSize: 18}}>X</Text>
+                </TouchableOpacity>
+                <View style={{alignItems: 'center', flexDirection: 'column', marginTop: 15 }}>
+              <Text style={{fontSize: 15, marginTop: 10}}>Please enter your new username</Text>
+
+              <TextInput ref={usernameRef} placeholder={'Username'} placeholderTextColor='grey' style={styles.userNameInput}
+              onChangeText={text => setNewUserName(text)} />
+
+              
+              <TouchableOpacity onPress={confirmNewName}>
+                <Text style={{fontSize: 18, fontWeight: 500, color: '#1e90ff'}}>Confirm</Text>
+              </TouchableOpacity>
+              </View>
+
+          </View> 
+          : 
+          null}
           {hasNewWeight ? 
           <View style={styles.confirmPasswordContainer}>
 
@@ -1651,28 +1714,49 @@ const styles = StyleSheet.create({
                             sethasNewWeight(false);
                             setHelp(true);
                             setShowAccount(false)
+                            setHasNewName(false);
                           }
                           }>
                             <Text style={{fontSize: 17}}>Help</Text>
                           </TouchableOpacity>
                           <TouchableOpacity style={styles.accountOption1} onPress={() => {
-                            setChangeUnit(true)
-                            sethasNewWeight(false)
-                            setShowAccount(false);
+                            
+                            setChangeUnit(false);
+                            sethasNewWeight(false);
+                            setHelp(false);
+                            setShowAccount(false)
+                            setHasNewName(true);
+
+                           }
+                          }>
+                            <Text style={{fontSize: 17}}>Change Username</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity style={styles.accountOption1} onPress={() => {
+                            setChangeUnit(true);
+                            sethasNewWeight(false);
+                            setHelp(false);
+                            setShowAccount(false)
+                            setHasNewName(false);
                           }
                           }>
                             <Text style={{fontSize: 17}}>Change Unit</Text>
                           </TouchableOpacity>
                           <TouchableOpacity style={styles.accountOption2} onPress={() => {
-                            sethasNewWeight(true)
-                            setChangeUnit(false)
-                            setShowAccount(false);
+                            setChangeUnit(false);
+                            sethasNewWeight(true);
+                            setHelp(false);
+                            setShowAccount(false)
+                            setHasNewName(false);
                           }}>
                             <Text style={{fontSize: 17}}>New Goal?</Text>
                           </TouchableOpacity>
 
                               <TouchableOpacity style={styles.accountOption3} onPress={() =>{
-                                setShowAccount(false);
+                                setChangeUnit(false);
+                              sethasNewWeight(false);
+                              setHelp(false);
+                              setShowAccount(false)
+                              setHasNewName(false);
                                 Alert.alert('Reset Password', 'Are you sure you want to reset your password?',
                     [{
                         text: 'Cancel',
@@ -1687,7 +1771,11 @@ const styles = StyleSheet.create({
                                 <Text style={{fontSize: 17}}>Reset Password</Text>
                               </TouchableOpacity>
                               <TouchableOpacity  style={styles.accountOption4} onPress={ () => {
-                                setShowAccount(false);
+                                setChangeUnit(false);
+                              sethasNewWeight(false);
+                              setHelp(false);
+                              setShowAccount(false)
+                              setHasNewName(false);
                                 Alert.alert('Logout', 'Are you sure you want to Logout?',
                     [{
                         text: 'Cancel',
@@ -1701,7 +1789,11 @@ const styles = StyleSheet.create({
                               </TouchableOpacity>
                               <TouchableOpacity style={styles.accountOption5}>
                                 <Text style={{color: 'red', fontSize: 17}} onPress={() => {
-                                setShowAccount(false);
+                                setChangeUnit(false);
+                              sethasNewWeight(false);
+                              setHelp(false);
+                              setShowAccount(false)
+                              setHasNewName(false);
                                 Alert.alert('Delete Account', 'Are you sure you want to delete your account?',
                     [{
                         text: 'Cancel',

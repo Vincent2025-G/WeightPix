@@ -380,6 +380,7 @@ export const SecondPage = ({navigation, route}: Prop): React.JSX.Element => {
   
 
   const dataExists = useRef<boolean | null>(null);
+  const convertToLocalCalled = useRef(false);
 
 useEffect(() => {
   const checkSubscription = async () => {
@@ -393,6 +394,8 @@ useEffect(() => {
 
  
 useEffect(() => { 
+  if(convertToLocalCalled.current == false){
+    convertToLocalCalled.current = true;
   const convertToLocal = async () => 
   {
     let newImageData: imageDataType[] = [];
@@ -429,7 +432,8 @@ useEffect(() => {
     }
   }
 
-  convertToLocal();
+    convertToLocal();
+  }
  }, [storingDone, imageData])
 
 
@@ -1473,8 +1477,13 @@ useEffect(() => {
 
 
               selfieLoadedList.current[index] = false
-              setLoadError(true);
-              // restoreLocalData();
+              if(!loadError){
+                console.log("set load error to true");
+                setLoadError(true); 
+              }
+              else{
+                restoreLocalData();
+              }
               
             }
 
