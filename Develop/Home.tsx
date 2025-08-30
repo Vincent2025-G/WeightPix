@@ -1441,7 +1441,6 @@ const styles = StyleSheet.create({
               <TextInput ref={usernameRef} placeholder={'Username'} placeholderTextColor='grey' style={styles.userNameInput}
               onChangeText={text => setNewUserName(text)} />
 
-              
               <TouchableOpacity onPress={confirmNewName}>
                 <Text style={{fontSize: 18, fontWeight: 500, color: '#1e90ff'}}>Confirm</Text>
               </TouchableOpacity>

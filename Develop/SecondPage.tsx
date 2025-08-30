@@ -394,8 +394,7 @@ useEffect(() => {
 
  
 useEffect(() => { 
-  if(convertToLocalCalled.current == false){
-    convertToLocalCalled.current = true;
+  
   const convertToLocal = async () => 
   {
     let newImageData: imageDataType[] = [];
@@ -433,7 +432,7 @@ useEffect(() => {
   }
 
     convertToLocal();
-  }
+  
  }, [storingDone, imageData])
 
 
