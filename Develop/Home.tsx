@@ -54,9 +54,10 @@ import { TooltipComponent } from './CopilotTooltip.tsx';
 import { useIsFocused } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
 import { constructFromSymbol } from 'date-fns/constants';
-// import { listAll } from 'react-native-firebase/firestore';
-// import { createCipheriv } from 'crypto';
-// import { count } from 'console';
+import {isTablet} from 'react-native-device-info';
+
+
+// console.log("Is this a tablet? " + isTablet());
 
 
 const styles = StyleSheet.create({

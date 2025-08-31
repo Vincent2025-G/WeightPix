@@ -18,7 +18,7 @@ import FastImage from 'react-native-fast-image'
 import {Gesture, GestureDetector, State} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, withSpring, runOnJS, withTiming, ColorSpace} from 'react-native-reanimated'
 import {useCheckSubscriptionInfo} from './subscriptionCheck';
-
+import {isTablet} from 'react-native-device-info';
 
 import {
  ScrollView,
@@ -127,8 +127,8 @@ ViewToken
      width: 200
    },
    image:{
-     width: 220,
-     height: 220,
+     width: !isTablet() ? 220 : 300,
+     height: !isTablet() ? 220 : 300,
      marginTop: '0%',
      borderRadius: 5,
      justifyContent: 'center',
@@ -435,7 +435,7 @@ useEffect(() => {
     
       const res = await RNFS.readDir(userDir);
       const paths = res.map((item) => item.path);
-      console.log("These are the paths " + paths);
+      // console.log("These are the paths " + paths);
 
       let check = false;
 
@@ -893,7 +893,7 @@ useEffect(() => {
 
   // Sets the threshold for what's considered in view.
   const viewConfigRef = useRef({
-    viewAreaCoveragePercentThreshold: 50
+    viewAreaCoveragePercentThreshold: !isTablet() ? 50 : 68
    });
 
  
@@ -1404,7 +1404,7 @@ useEffect(() => {
      {(!selfieSelected && !fullBodySelected) ?
            <View style={{height: 650}}>
        
-       <View style={{width: 340, height: 620, marginLeft: 0, alignItems: 'center'}}>
+       <View style={{width: !isTablet() ? 340 : 600, height: !isTablet() ? 620 : 720, marginLeft: 0, alignItems: 'center'}}>
 
        {(!isNotes) ? (
        <FlatList<imageDataType>

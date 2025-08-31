@@ -40,6 +40,7 @@ import {
   } from 'react-native';
 import { isEnabled } from 'react-native/Libraries/Performance/Systrace';
 import { GlobalState } from './GlobalState';
+import {isTablet} from 'react-native-device-info';
 // import { parse } from 'path';
 
 
@@ -51,25 +52,25 @@ import { GlobalState } from './GlobalState';
         flex: 1
      },
      lineChart: {
-      height: '290@mvs0.1',
-       width: '350@ms0.1',
+      height: !isTablet() ? '290@mvs0.1' : '500@mvs0.1',
+       width: !isTablet() ? '350@ms0.1' : '505@ms0.1',
        backgroundColor: 'black',
       borderRadius: 15,
         marginTop: 10,
         padding: 18,
-          borderColor: '#00ffff', 
+        borderColor: '#00ffff', 
         borderWidth: 1
      },
      mainContainer: {
-      alignItems: "center", marginTop: '170@s'
+      alignItems: "center", marginTop: !isTablet() ? '170@s' : '140@s'
      },
      returnButtonContainer:{
         position: 'absolute',
-        left: 30,
-        top: 100
+        left: !isTablet() ? 30 : 80,
+        top: !isTablet() ? 100 : 180
      },
      smallerText: {
-        fontSize: 20,
+        fontSize: !isTablet() ? 20 : 23,
         color: 'white',
         fontWeight: 'bold',
         textShadowColor: '#00ffff',
@@ -77,7 +78,7 @@ import { GlobalState } from './GlobalState';
         textShadowRadius: 3, // Controls how far the shadow blurs out.
     },
      text: {
-        fontSize: 25,
+        fontSize: !isTablet() ? 25 : 35,
         color: 'white',
         fontWeight: 'bold',
         textShadowColor: '#00ffff',
@@ -85,7 +86,7 @@ import { GlobalState } from './GlobalState';
         textShadowRadius: 3, // Controls how far the shadow blurs out.
     },
      textInputText:{
-     fontSize: 23,
+     fontSize: !isTablet() ? 25 : 35,
      color: 'white',
      fontWeight: 'bold',
      textShadowColor: '#00ffff',
@@ -94,7 +95,7 @@ import { GlobalState } from './GlobalState';
      textAlign: 'center'
    },
      goalText: {
-        fontSize: 20,
+        fontSize: !isTablet() ? 20 : 23,
         color: 'white',
         fontWeight: 'bold',
         textShadowColor: '#00ffff',
@@ -104,7 +105,7 @@ import { GlobalState } from './GlobalState';
     },
     arrowButton: {
       color: 'white', 
-      fontSize: '40@s',
+      fontSize: !isTablet() ? '35@s' : '30@s',
       textShadowColor: '#00ffff',
       textShadowOffset: {width: 0, height: 0}, // Defines the position of shadow (0,0 in center)
       textShadowRadius: 3, 
@@ -114,8 +115,8 @@ import { GlobalState } from './GlobalState';
     },
     exitButton1:{
      position: 'absolute',
-    left: '48@s',
-    top: 155,
+    left: !isTablet() ? '48@s' : '100@s',
+    top: !isTablet() ? 155 : 275,
     opacity: 1,
     alignItems: 'center',
     backgroundColor: 'grey',
@@ -125,8 +126,8 @@ import { GlobalState } from './GlobalState';
    },
    exitButton2:{
     position: 'absolute',
-   left: 50,
-    top: 155,
+   left: !isTablet() ? '48@s' : '100@s',
+    top: !isTablet() ? 155 : 275,
      opacity: 0,
     alignItems: 'center',
     backgroundColor: 'grey',
@@ -136,8 +137,8 @@ import { GlobalState } from './GlobalState';
    },
     exitButton3:{
      position: 'absolute',
-    left: 15,
-    top: 155,
+    left: !isTablet() ? 15 : 140,
+    top: !isTablet() ? 155 : 275,
     opacity: 1,
     alignItems: 'center',
     backgroundColor: 'grey',
@@ -147,8 +148,8 @@ import { GlobalState } from './GlobalState';
    },
    exitButton4:{
     position: 'absolute',
-    left: 15,
-    top: 155,
+      left: !isTablet() ? 15 : 140,
+    top: !isTablet() ? 155 : 275,
      opacity: 0,
     alignItems: 'center',
     backgroundColor: 'grey',
@@ -158,55 +159,61 @@ import { GlobalState } from './GlobalState';
    },
     searchContainer: {
       position: 'absolute', 
-      top: 150, 
-      left: 105,
+      top: !isTablet() ? 150 : 270, 
+      left: !isTablet() ? 105 : 300,
       flexDirection: 'row', 
       borderWidth: 1, 
       borderColor: "#00ffff", 
       borderRadius: 15,
-      width: '152@s', 
-      height: 40, 
+      width: !isTablet() ? '152@s' : '90@s', 
+      height: !isTablet() ?  40 : 60, 
       alignItems: 'center',
       padding: 5
     },
     searchContainer2: {
       position: 'absolute', 
-      top: 150, 
-      left: 65,
+      top: !isTablet() ? 150 : 270, 
+      left: !isTablet() ? 65 : 200,
       flexDirection: 'row', 
       borderWidth: 1, 
       borderColor: "#00ffff", 
       borderRadius: 15,
-      width: '223@s', 
-      height: 40, 
+      width: !isTablet() ? '223@s' : '180@s', 
+      height: !isTablet() ?  40 : 60, 
       alignItems: 'center',
       padding: 5
     },
     mgiStyle: {
-      height: '25@s', width: '25@s'
+      height: !isTablet() ? 25 : 40,
+      width: !isTablet() ? 25 : 40,
+      marginRight: isTablet() ? 15 : 0
     },
     rangeButton1:{
      borderColor: '#00ffff',
      borderWidth: 2,
      borderRadius: 5,
-     width: 40,
+     width: !isTablet() ? 40 : 60,
+     height: !isTablet() ? 35 : 55,
      position: 'absolute',
-     right: 65,
-     top: 153,
-     alignItems: 'center'
+     right: !isTablet() ? 65 : 230,
+     top: !isTablet() ? 153 : 273,
+     alignItems: 'center',
+     justifyContent: 'center'
    },
    rangeButton2:{
      borderColor: '#00ffff',
      borderWidth: 2,
      borderRadius: 5,
-     width: 40,
+    width: !isTablet() ? 40 : 60,
+     height: !isTablet() ? 35 : 55,
      position: 'absolute',
-    right: '25@s',
-     top: 153,
+    right: !isTablet() ? '25@s' : '55@s',
+     top: !isTablet() ? 153 : 273,
      alignItems: 'center',
+     justifyContent: 'center',
      shadowColor: '#00ffff',
      shadowOffset: {width: 0, height: 0},
-     shadowRadius: 8,
+     shadowRadius: !isTablet() ? 8 : 12,
      shadowOpacity: 1
    },
    chartButtons: {
@@ -592,7 +599,7 @@ import { GlobalState } from './GlobalState';
 
      const handleShowValues = (scaleX: number, scaleY: number) => {
         console.log("handleShowValues entered");
-      const zoomAmount = 2.0;
+      const zoomAmount = 1.5;
 
         if(scaleX >= zoomAmount && !showValues){
           setShowValues(true);
@@ -618,7 +625,7 @@ import { GlobalState } from './GlobalState';
                  </View> : null}
             <View style={styles.returnButtonContainer}>
                 <TouchableOpacity onPress={() => navigation.navigate('Data', {imageData: imageData!})}>
-                    <Text style={styles.text}>←</Text>
+                    <Text style={styles.arrowButton}>←</Text>
                 </TouchableOpacity>
              </View>
             
@@ -652,7 +659,7 @@ import { GlobalState } from './GlobalState';
                                            setSearch(true);
                                           }
                                         }> 
-                                      <Image source={require('./range.png')} style={{width: 35, height: 30}} />
+                                      <Image source={require('./range.png')} style={{width: !isTablet() ? 35 : 55, height: !isTablet() ? 30 : 50}} />
                                       </TouchableOpacity>
          : null
           }
@@ -755,12 +762,14 @@ import { GlobalState } from './GlobalState';
    <LineChart
     ref={chartRef}
     chartGestureListener={{
+      
      onChartGestureStart: () => console.log('Gesture started ✅'),
     onChartScale: (event:any) => {
       const { scaleX, scaleY } = event.nativeEvent;
       handleShowValues(scaleX, scaleY);
     },
   }}
+
   style={styles.lineChart}
   data={{
     dataSets: [
@@ -776,11 +785,11 @@ import { GlobalState } from './GlobalState';
           }
           
         ),
-          circleRadius: 3, 
+          circleRadius: !isTablet() ? 3 : 5,  
           lineWidth: 1,
           drawValues: true,
           valueTextColor: processColor('#00ffff'),
-          valueTextSize: 10
+          valueTextSize: !isTablet() ? 10 : 15
         },
       },
 
@@ -793,6 +802,7 @@ import { GlobalState } from './GlobalState';
     valueFormatterType: 'value',
     position: 'BOTTOM',
     textColor: processColor('white'),
+    textSize: !isTablet() ? 10 : 15,
     axisLineColor: processColor('white'),
     drawGridLines: false,
     // Spacing labels by a fixed interval of 1.
@@ -808,6 +818,7 @@ import { GlobalState } from './GlobalState';
       axisMinimum: 0,
       axisMaximum: 600,
       textColor: processColor('white'),
+      textSize: !isTablet() ? 10 : 15,
       axisLineColor: processColor('white'),
       drawGridLines: true,
       limitLines:[{ 
