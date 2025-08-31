@@ -35,6 +35,7 @@ import {GlobalState} from './GlobalState.ts';
 import FastImage from 'react-native-fast-image';
 import * as RNFS from '@dr.pogodin/react-native-fs';
 import {useCheckSubscriptionInfo} from './subscriptionCheck';
+import { imageDataType } from './StackList';
 
   
 
@@ -127,7 +128,7 @@ import {useCheckSubscriptionInfo} from './subscriptionCheck';
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const {imageData, setImageData} = useContext(UserData);
+    const {imageData, setImageData, setGoalWeight, setUnit} = useContext(UserData);
     // const{connected, purchaseHistory, getPurchaseHistory} = useIAP();
     // const subscriptionSkus = Platform.select({ios: ['wj.test1']}); 
     const {checkLocal} = useCheckSubscriptionInfo();
@@ -135,7 +136,8 @@ import {useCheckSubscriptionInfo} from './subscriptionCheck';
     
     interface UserDataTypes{
         expirationDate: Timestamp,
-        completedOnboard: boolean
+        completedOnboard: boolean,
+        photos: imageDataType[]
     }
 
     // navigation.navigate("Payment");
@@ -156,6 +158,9 @@ import {useCheckSubscriptionInfo} from './subscriptionCheck';
             FastImage.clearDiskCache();
             FastImage.clearMemoryCache();
             setImageData(null);
+            setGoalWeight(null);
+            setUnit('lb');
+            
         }
        
         clear();
@@ -192,6 +197,7 @@ import {useCheckSubscriptionInfo} from './subscriptionCheck';
             //                 // return;
 
             // }
+                let photoLength = 0;
 
                 try{
                       const dbCollection = collection(firestore, 'Users'); 
@@ -201,6 +207,7 @@ import {useCheckSubscriptionInfo} from './subscriptionCheck';
                       if(docSnapShot.exists()){
                         const user = docSnapShot.data() as UserDataTypes;
                         console.log(user?.completedOnboard + " onboard?")
+                        photoLength = user?.photos.length;
                         if(user?.completedOnboard === true){
                           console.log(" Yes completed onboard is: " + user?.completedOnboard);
                           
@@ -219,11 +226,13 @@ import {useCheckSubscriptionInfo} from './subscriptionCheck';
               
 
             GlobalState.uid = user.uid;
+            GlobalState.dataLength = photoLength
             const userDir = `${RNFS.DocumentDirectoryPath}/${user.uid}`;
             const subInfoPath = `${userDir}/subInfo`;
             console.log("subInfoPath: " + subInfoPath);
+            console.log("Photo length: " + photoLength);
            
-            checkLocal(subInfoPath, true);
+            checkLocal(subInfoPath, photoLength);
 
             // navigation.navigate('Home');
         }

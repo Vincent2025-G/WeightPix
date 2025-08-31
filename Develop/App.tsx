@@ -21,7 +21,7 @@ import { Onboard2 } from './Onboard2.tsx';
 import { Payment } from './Payment.tsx';
 import {imageDataType} from './StackList';
 import {auth, firestore} from './Firebase.ts'
-import { onAuthStateChanged } from '@react-native-firebase/auth';
+import { onAuthStateChanged, useUserAccessGroup } from '@react-native-firebase/auth';
 import {collection, doc, getDoc, Timestamp} from '@react-native-firebase/firestore'
 import 'react-native-charts-wrapper';
 import { GlobalState } from './GlobalState.ts';

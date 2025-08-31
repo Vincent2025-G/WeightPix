@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef, useLayoutEffect, useContext} from 'react';
+import React, {useState, useEffect, useRef, useLayoutEffect, useContext, use} from 'react';
 
 import {
     initConnection,
@@ -42,6 +42,7 @@ import {useCheckSubscriptionInfo} from './subscriptionCheck'
 import { createNativeStackNavigator, NativeStackScreenProps} from '@react-navigation/native-stack';
 import { RootStackParamList } from './StackList';
 import { GlobalState } from './GlobalState';
+import { UserData } from './UserData';
 // import {initConnection, getSubscriptions} from 'react-native-iap'
 
 const styles = StyleSheet.create({
@@ -110,6 +111,7 @@ export const Payment = ({navigation}: Prop) => {
     const {validate} = useCheckSubscriptionInfo()
     // Connects to the product id from AppStoreConnect for the subscription group!
     const subscriptionSkus = Platform.select({ios: ['wj.test1']}); 
+    const {imageData} = useContext(UserData);
 
     const {
     connected,
@@ -215,7 +217,7 @@ export const Payment = ({navigation}: Prop) => {
          await restorePurchases();
          const receiptInfo = await getReceiptIOS({forceRefresh: true});
          if(receiptInfo){
-            validate(receiptInfo, subInfoPath, "Home", false);
+            validate(receiptInfo, subInfoPath, "Home", imageData?.length ?? 0);
          }
     }
     catch(error){
@@ -242,7 +244,7 @@ export const Payment = ({navigation}: Prop) => {
                     if(isIos){
                         const isTestEnv = __DEV__;  
                         console.log("This is the currentPurchase error: " + purchaseUpdatedListener)
-                        await validate(receipt, subInfoPath, "Home", true);
+                        await validate(receipt, subInfoPath, "Home", imageData?.length ?? 0);
 
                         // if(result == false){
                         //     console.log("The result is false!");
