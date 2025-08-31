@@ -226,6 +226,7 @@ import { imageDataType } from './StackList';
               
 
             GlobalState.uid = user.uid;
+            GlobalState.dataLength = photoLength
             const userDir = `${RNFS.DocumentDirectoryPath}/${user.uid}`;
             const subInfoPath = `${userDir}/subInfo`;
             console.log("subInfoPath: " + subInfoPath);

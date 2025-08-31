@@ -16,7 +16,7 @@ import * as RNFS from '@dr.pogodin/react-native-fs';
 // import Toast from 'react-native-toast-message';
 import FastImage from 'react-native-fast-image'
 import {Gesture, GestureDetector, State} from 'react-native-gesture-handler'
-import Animated, {useSharedValue, useAnimatedStyle, withSpring, runOnJS, withTiming} from 'react-native-reanimated'
+import Animated, {useSharedValue, useAnimatedStyle, withSpring, runOnJS, withTiming, ColorSpace} from 'react-native-reanimated'
 import {useCheckSubscriptionInfo} from './subscriptionCheck';
 
 
@@ -378,10 +378,10 @@ export const SecondPage = ({navigation, route}: Prop): React.JSX.Element => {
   
   const {checkLocal} = useCheckSubscriptionInfo();
   
-
-  const dataExists = useRef<boolean | null>(null);
   const convertToLocalCalled = useRef(false);
 
+
+// Checking the subscription status every time the page loads.  
 useEffect(() => {
   const checkSubscription = async () => {
     checkLocal(subInfoPath, imageData?.length ?? 0);
@@ -392,7 +392,8 @@ useEffect(() => {
  
 
 
- 
+
+// Converting the URLs to local paths if needed.
 useEffect(() => { 
   
   const convertToLocal = async () => 
@@ -404,23 +405,13 @@ useEffect(() => {
     console.log("length: " + paths.length);
     if(imageData != null && imageData.length > 0 && (paths.length === (imageData.length * 2)) && imageData![imageData.length - 1].selfie?.includes("http")){
       console.log("Entered because equal lengths " + paths.length + " " + imageData.length);
-      for(const image of imageData!){
-        // if(image.selfie?.includes("http")){   
+      for(const image of imageData!){  
           console.log("Entered for: " + image.selfie)     
           const restoredSelfiePath = paths.filter((item) => item.includes(image.selfieName!)); 
           const restoredFullBodyPath = paths.filter((item) => item.includes(image.fullBodyName!));
           const newImageObj: imageDataType =  {selfie: restoredSelfiePath[0], fullBody: restoredFullBodyPath[0], weight: image.weight, date: image.date, notes: image.notes, selfieName: image.selfieName, fullBodyName: image.fullBodyName}
           newImageData = [...newImageData, newImageObj];
-        // }
       }
-
-      // Adding the new image set to the newImageData so when you overwrite
-      // it will contain it.
-      // if(globalStoredData.length === 1 && newImageData.length != imageData!.length){
-      //   newImageData = [...newImageData, ...globalStoredData];
-      // }
-
-      // console.log("Here's the new image data dawg: " + newImageData);
 
       if(newImageData.length >= imageData.length){
         console.log("Changed the data!");
@@ -433,17 +424,18 @@ useEffect(() => {
 
     convertToLocal();
   
- }, [storingDone, imageData])
+ }, [storingDone, imageData]);
 
 
 
-
+ // Checking if the image data is already in storage so I can skip it.
+ // Called from the storeAsyncData function.
   const checkIfInStorage = async (currPath: string): Promise<boolean> => 
   {
     
       const res = await RNFS.readDir(userDir);
       const paths = res.map((item) => item.path);
-      // console.log("These are the paths " + paths);
+      console.log("These are the paths " + paths);
 
       let check = false;
 
@@ -458,7 +450,12 @@ useEffect(() => {
   }
 
   
-  
+  // If ths is called then the setImages function failed
+  // or the images can't load so it needs to replace the 
+  // local paths with the new local paths.
+
+  // Sets local data to false if it fails so that it will trigger the 
+  // data retrieval function from the database if it exists.
   const restoreLocalData = async () => {
     
     if(!triedToRetrieveLocally.current){
@@ -472,7 +469,7 @@ useEffect(() => {
       
       console.log("Stored Image Data in restore: " + storedImageData);
 
-      setlocalHasData(true);
+      // setlocalHasData(true);
       let newImageData: imageDataType[] = [];
 
       // Reconstructing the new paths for the images 
@@ -512,32 +509,31 @@ useEffect(() => {
 
    
    
-
+  // Converts the Urls to local paths. 
   const storeAsyncData = async (inputData: imageDataType[]) => {
     console.log("store async data entered" + " " + inputData.length);
     let newImageData: imageDataType[] = [];
 
     let exists = await RNFS.exists(userDir);
     if(!exists){
-       dataExists.current = false;
        RNFS.mkdir(userDir);
     }
     else{
       console.log("This is the path that exists")
-      dataExists.current = true;
     }
    
 
     exists = await RNFS.exists(userDir);
     console.log("This is exists after making the directory should work: " + exists);
     
+      // Looping through the input data so that it can be stored locally.
       for(const item of inputData){
 
        const localSelfiePath = `${userDir}/${item.selfieName}`; 
        const localFullBodyPath = `${userDir}/${item.fullBodyName}`; 
-
-       const alreadyCalledSelfie = await checkIfInStorage(localSelfiePath);
-      //  const alreadyCalledFullBody = await checkIfInStorage(localFullBodyPath);
+        console.log("Local selfie path: " + localSelfiePath);
+       const alreadyCalledSelfie = await checkIfInStorage(localSelfiePath!);
+      
        if(alreadyCalledSelfie){
         console.log("Already called, move on to the next!");
         continue; 
@@ -545,30 +541,34 @@ useEffect(() => {
 
        console.log("Made it after the paths selfie: " + localSelfiePath + " localFullbody: " + localFullBodyPath);
       try{
-       const[selfieResult, fullBodyResult] = await Promise.all([
-        RNFS.downloadFile({fromUrl: item.selfie!, toFile: localSelfiePath}).promise,
-        RNFS.downloadFile({fromUrl: item.fullBody!, toFile: localFullBodyPath}).promise
-      ]);
-      console.log("Selfie status " + selfieResult.statusCode + " " + "full body status " + fullBodyResult.statusCode);
-    }
-    catch(error){
-      console.log("Error: " + error);
-    } 
-      const exists = await RNFS.exists(userDir);
-      if(exists){
-        console.log("Path exists");
-      }
-      else{
-        console.log("Path doesn't exist");
-      }
+        const[selfieResult, fullBodyResult] = await Promise.all([
+          RNFS.downloadFile({fromUrl: item.selfie!, toFile: localSelfiePath}).promise,
+          RNFS.downloadFile({fromUrl: item.fullBody!, toFile: localFullBodyPath}).promise
+        ]);
+        console.log("Selfie status " + selfieResult.statusCode + " " + "full body status " + fullBodyResult.statusCode);
+     }
+      catch(error){
+        console.log("Error: " + error);
+      } 
+
+      // const exists = await RNFS.exists(userDir);
+
+      // if(exists){
+      //   console.log("Path exists");
+      // }
+      // else{
+      //   console.log("Path doesn't exist");
+      // }
       
       const files = await RNFS.readDir(userDir);
 
+      // Getting all of the paths and filenames that are stored locally.
       const localStorageData = files.map(file => ({
         name: file.name,
         path: file.path,
       }));
 
+    // Getting the selfie path.
     const selfieData = localStorageData.filter(localItem =>
         localItem.name === item.selfieName
     );
@@ -578,35 +578,42 @@ useEffect(() => {
       localItem.name === item.fullBodyName
     );
 
-    const newObj:imageDataType = {selfie: selfieData[0].path, fullBody: fullBodyData[0].path, weight: item.weight, date: item.date, notes: item.notes, selfieName: item.selfieName, fullBodyName: item.fullBodyName}
+    const newObj:imageDataType = {selfie: selfieData[0].path, fullBody: fullBodyData[0].path, weight: item.weight, date: item.date, notes: item.notes, selfieName: item.selfieName, fullBodyName: item.fullBodyName};
+
+    // If the object path already exists then append to it.
+    // Should only fire when there's a new image to append.
+    const objPathExists = await RNFS.exists(objPath);
+    if(objPathExists){
+      const objData = await RNFS.readFile(objPath, 'utf8');
+      let localStorageData = JSON.parse(objData);
+      localStorageData = [...localStorageData, newObj];
+      setImageData(localStorageData);
+      setFiltered(localStorageData);
+
+      await RNFS.writeFile(objPath, localStorageData, 'utf8');
+      console.log("This is the local storage data " + localStorageData)
+    }
+    
+    console.log("reached the end of download");
     newImageData = [...newImageData, newObj];
  
     console.log("This is localstorage length " + localStorageData.length);
 
-       
     }
 
-    setImageData(newImageData);
-    // setFiltered(newImageData);
     setStoringDone(true);
     
     console.log("The storing is done!");
 
-      // if(newImageData.length > 0){
-      //     setGlobalStoredData(prev => [...prev, ...newImageData]);
-      // }
-
-      
-
   }
 
-  useEffect(() => {
-    
-    setFiltered(imageData!);
-  }, [imageData])
+  // Setting filtered image data on load and when the image data changes.
+  // useEffect(() => {
+  //   setFiltered(imageData!);
+  // }, [imageData])
   
  
-
+  // Setting the unit in case the user changed it.
   useEffect(() => {
     const setData = async () => {
       const storedData = await RNFS.readFile(changedDataPath, 'utf8');
@@ -620,45 +627,48 @@ useEffect(() => {
     setData();
   }, [])
 
-
  
+  // Called on load as well as when storeAsyncData has finished downloading.
   useEffect(() => {
     const setImages = async () => {
-      
-     try{ 
 
-      const exists = await RNFS.exists(userDir);
-      if(!exists){
-        console.log("Directory doesn't exist");
-        restoreLocalData();
-        return;
-      } 
-      else{
-        setlocalHasData(true);
-        dataExists.current = true;
-      }
+      try{ 
 
-      // Getting the images from the local path
-      const storedImageData = await RNFS.readFile(objPath, 'utf8');
-      const storedImageObj = JSON.parse(storedImageData);
+        const exists = await RNFS.exists(userDir);
 
-      console.log("stored image obj: " + storedImageObj.length)
+        if(!exists){
+          console.log("Directory doesn't exist");
+          restoreLocalData();
+          return;
+        } 
+        else{
+          console.log("Directory does exist");
+        }
 
-      if((imageData != null && exists && imageData.length > storedImageObj.length)){
-        console.log("Image Data larger! " + imageData.length);
-        return;
-      }
-   
-      console.log("Actually Worked")
-      setStoringDone(true);
-      
-      setImageData(storedImageObj);
-      console.log("The image data in RNFS")
-      for(const item of storedImageObj){
-        console.log(item)
-      }
+        // Getting the images from the local path
+        const storedImageData = await RNFS.readFile(objPath, 'utf8');
+        const storedImageObj = JSON.parse(storedImageData);
+
+        console.log("stored image obj: " + storedImageObj.length)
+
+        if((imageData != null && exists && imageData.length > storedImageObj.length)){
+          console.log("Image Data larger! " + imageData.length);
+          return;
+        }
     
-    }
+        console.log("Actually Worked")
+        setStoringDone(true);
+        setImageData(storedImageObj);
+        setFiltered(storedImageObj);
+
+        console.log("The image data in RNFS")
+        for(const item of storedImageObj){
+          console.log(item)
+        }
+
+        setlocalHasData(true);
+      
+      }
       catch(error){
         restoreLocalData();
         console.log("Error with RNFS: " + error);
@@ -666,35 +676,39 @@ useEffect(() => {
     }
 
     setImages();
-  }, [storingDone, loadError])
+  }, [storingDone, loadError]);
 
+
+  // Checking the difference between the database and the local storage.
   useEffect(() =>{
     const checkIfDifference = async () => {
-      console.log("Calling checker")
-      console.log("Data Length: " + GlobalState.dataLength +  "imageData length: " + imageData!.length);
+      console.log("Calling checker");
+      try{
+        console.log("Data Length: " + GlobalState.dataLength +  "imageData length: " + imageData!.length);
+      }
+      catch{
+        console.log("Image data is null");
+      }
 
-       if( imageData != null && GlobalState.dataLength! > imageData!.length && localHasData == true){
+      if(imageData != null && GlobalState.dataLength! > imageData!.length && imageData!.length > 0 && localHasData == true){
         console.log("There is a difference:")
         const dbCollection = collection(firestore, 'Users');
         const docRef = doc(dbCollection, GlobalState.uid);
         const docSnap = await getDoc(docRef);
-       //  await doc(dbCollection, GlobalState.uid).update({[deviceName]: RNFS.DocumentDirectoryPath.split('/')[6]});
- 
-      if(docSnap.exists()){
-       const user = docSnap.data() as UserDataTypes;
-       const photos = user?.photos; 
-       let newImageData: imageDataType[] = [];
+       
+        if(docSnap.exists()){
+          const user = docSnap.data() as UserDataTypes;
+          const photos = user?.photos; 
+          let newImageData: imageDataType[] = [];
 
-       for(let i = imageData.length; i < GlobalState.dataLength; i++){
-          newImageData = [...newImageData, photos[i]];
-       }
+          for(let i = imageData.length; i < GlobalState.dataLength; i++){
+              newImageData = [...newImageData, photos[i]];
+          }
 
-      // let combinedData = [...imageData, newImageData]
-
-        console.log("This is the difference image data: " + newImageData.length);
-        setAlreadyHasData(true);
-        await storeAsyncData(newImageData);
-       }
+          console.log("This is the difference image data: " + newImageData.length);
+          setAlreadyHasData(true);
+          await storeAsyncData(newImageData);
+        }
     }
   }
 
@@ -716,59 +730,38 @@ useEffect(() => {
 }
 
 
+  // Retrieving data from the database if it isn't in local storage.
   useEffect(() =>
   {
-
-    
-    // if(imageRoute.imageData != null && imageData != null && imageRoute.imageData.length > imageData!.length){
-    //     console.log("Entered here messing things up!");
-    //     setImageData(imageRoute.imageData);
-    //     setFiltered(imageRoute.imageData);
-    //     setDataChanged(data => !data);
-    //     return;
-       
-    // }
 
     if(localHasData === false && !checkedDatabase.current){ 
       checkedDatabase.current = true;
       console.log("Data retrieved again!" + " image data " + imageData + " allowedAccess: " + allowedAccess + " asyncHasData: " + localHasData);
+
     const getData = async () => {
+
      try{
        const dbCollection = collection(firestore, 'Users');
        const docRef = doc(dbCollection, GlobalState.uid);
        const docSnap = await getDoc(docRef);
       //  await doc(dbCollection, GlobalState.uid).update({[deviceName]: RNFS.DocumentDirectoryPath.split('/')[6]});
 
-     if(docSnap.exists()){
-      const user = docSnap.data() as UserDataTypes;
-      setImageData(user?.photos as imageDataType[]);
-      setAlreadyHasData(false)
-      await storeAsyncData(user?.photos as imageDataType[]);
-      
-      setDataLoaded(true);
-      setDataChanged(data => !data)
+      if(docSnap.exists()){
+        const user = docSnap.data() as UserDataTypes;
+        setImageData(user?.photos as imageDataType[]);
+        setAlreadyHasData(false)
+        await storeAsyncData(user?.photos as imageDataType[]);
+        
+        setDataLoaded(true);
+        setDataChanged(data => !data)
 
-      setTimeout(() => {
-       setLastIndex(user?.photos.length - 1);
-     }, 100)
+        setTimeout(() => {
+        setLastIndex(user?.photos.length - 1);
+      }, 100)
 
-     await RNFS.writeFile(objPath, JSON.stringify(user?.photos as imageDataType[]), 'utf8');
-     }
-    //  else if(docSnap.exists() && newImageAdded){
-    //       const user = docSnap.data() as UserDataTypes;
-    //       const photos = user?.photos as imageDataType[]
-    //       setAlreadyHasData(false)
-    //       await storeAsyncData(user?.photos as imageDataType[]);
-          
-    //       setDataLoaded(true);
-    //       setDataChanged(data => !data)
+      await RNFS.writeFile(objPath, JSON.stringify(user?.photos as imageDataType[]), 'utf8');
+      }
 
-    //       setTimeout(() => {
-    //       setLastIndex(user?.photos.length - 1);
-    //     }, 100)
-
-    //     await RNFS.writeFile(objPath, JSON.stringify(user?.photos as imageDataType[]), 'utf8');
-    //  }
      else{
       console.log("User not found!");
      }
@@ -781,13 +774,14 @@ useEffect(() => {
 }
   }, [localHasData, imageData]);
 
+  // Setting the data loaded to true so it can change the scrollto and current index.
   useEffect(() => {
     if(imageData !== null){
       setDataLoaded(true);
     }
   }, [])
 
-
+  // Checking the time to see if the user is allowed access.
  useEffect(() => {
   if(allowedAccess === null){
    const checkTime = async () => {
@@ -801,9 +795,7 @@ useEffect(() => {
            const end = data?.endTime.toDate().getTime()
            updateTime(end)
          }
-         if(data.photos.length != 0 && data.photos[data.photos.length - 1].date){
-
-         }
+       
        }
      }
      catch(error){
@@ -815,6 +807,7 @@ useEffect(() => {
  }, [imageData, localHasData]);  
 
 
+ // Updatig the allowance of going to the camera page if the next day is here or not.
  const updateTime = (end: number) => {
    let lastAllowed: boolean | null = null;
    const interval = setInterval(() => {
@@ -842,12 +835,6 @@ useEffect(() => {
          } 
        }, 1000)
    }
-
-   
-
-
-  
-
 
   const [selfieSelected, setSelfieSelected] = useState(false);
   const [fullBodySelected, setFullBodySelected] = useState(false);
@@ -879,11 +866,11 @@ useEffect(() => {
   const [showAccount, setShowAccount] = useState(false);
   const [isNotes, setisNotes] = useState(false);
 
+  // Checks if data or changed loaded to scroll to the end of the data list.
   const [dataLoaded, setDataLoaded] = useState(false);
   const [dataChanged, setDataChanged] = useState(false);
-  const [flatListReady, setFlatListReady] = useState(false);
-  // const [unit, setUnit] = useState('lb');
 
+  // Setting the image data to the image route image data if it's longer so it will show up when switching screens.
   useEffect(() => {
     if(imageRoute.imageData != null && imageData != null && imageRoute.imageData.length > imageData!.length){
       console.log("This condition was met!");
@@ -894,6 +881,7 @@ useEffect(() => {
     }
   }, [dataLoaded, imageData, dataChanged]);
 
+  // Allows for the flatlist to detect which item is in view.
   const onViewRef = useRef(({viewableItems}: {viewableItems: ViewToken[]}) => {
   
     if(viewableItems.length === 0) return;
@@ -903,25 +891,16 @@ useEffect(() => {
        setCurrIndex(viewableItems[0]?.index || 0);  
   });
 
-
+  // Sets the threshold for what's considered in view.
   const viewConfigRef = useRef({
- 
     viewAreaCoveragePercentThreshold: 50
    });
-
 
  
    const flatListRef = useRef<FlatList<imageDataType>>(null);
    const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-
   
    const [filteredImageData, setFiltered] = useState<imageDataType[]>(imageData!);
-
-
-  
-  
-  
 
    const weightSearchRef = useRef<RNTextInput>(null);
    const startRef = useRef<RNTextInput>(null);
@@ -935,23 +914,14 @@ useEffect(() => {
 
    const [pageLoaded, setPageLoaded] = useState(false);
 
-  
-
-
- 
-   // const didInitialScroll = useRef(false);
-
-
-   // console.log("This is the current index " + currIndex);
- 
-  
+  // Scrolling to the last index when the data changes. 
    useEffect(() => {
          
        if(imageData === null || imageData!.length <= 0) return;  
         
-        setFiltered(imageData!);
+        // setFiltered(imageData!);
         
-        setTimeout(() => {
+      setTimeout(() => {
           
         try{
           flatListRef.current?.scrollToIndex({ index: imageData.length - 1, animated: true});
@@ -964,8 +934,9 @@ useEffect(() => {
     
    }, [lastIndex, dataChanged, imageData]); 
 
+
+   // Filtering the data based on the search terms.
    useEffect(() => {
-    
      if(weight){
        const newData = imageData!.filter((item: imageDataType) =>
          item.weight.trim() === weight.toString().trim()
@@ -992,7 +963,6 @@ useEffect(() => {
          parseInt(item.weight.trim()) <= parseInt(endWeight.toString().trim())
        
        )
-
 
        setFiltered(newData);
 
@@ -1074,35 +1044,33 @@ useEffect(() => {
      )
    })
  
+   
    useEffect(() => {
      setTimeout(() => {
        setShowNoData(data => !data);
-     }, 400)
+     }, 200)
    }, [])
 
-
+   // Setting the unit from database.
    useEffect(() => {
       if(unit === null){
-      const getUnit = async () => {
-        try{
-          const dbCollection = collection(firestore, 'Users');
-          const docRef = doc(dbCollection, GlobalState.uid);
-          const docSnap = await getDoc(docRef);
+        const getUnit = async () => {
+          try{
+              const dbCollection = collection(firestore, 'Users');
+              const docRef = doc(dbCollection, GlobalState.uid);
+              const docSnap = await getDoc(docRef);
 
+              if(docSnap.exists()){
+              const user = docSnap.data() as UserDataTypes;
+              setUnit(user?.unit)
+              }
 
-          if(docSnap.exists()){
-          const user = docSnap.data() as UserDataTypes;
-          setUnit(user?.unit)
+              console.log(unit);
           }
-
-
-          console.log(unit);
+          catch(error){
+            console.log("Error: " + error);
+          }
       }
-      catch(error){
-        console.log("Error: " + error);
-      }
-    }
-
 
       getUnit()
     }
@@ -1145,7 +1113,7 @@ useEffect(() => {
     const saveTranslateX = useSharedValue(1);
     const saveTranslateY = useSharedValue(1);
 
-
+   // Allowing the zoom and moving of images.
     const pinchGesture = Gesture.Pinch()
     .onUpdate((e) => {
       let nextScale = e.scale;
@@ -1440,7 +1408,7 @@ useEffect(() => {
 
        {(!isNotes) ? (
        <FlatList<imageDataType>
-           onLayout = {() => setFlatListReady(true)}
+           
            style={{display: isNotes ? 'none' : 'flex'}}
            horizontal
            ref={flatListRef}
@@ -1476,13 +1444,13 @@ useEffect(() => {
 
 
               selfieLoadedList.current[index] = false
-              if(!loadError){
-                console.log("set load error to true");
-                setLoadError(true); 
-              }
-              else{
+              // if(!loadError){
+              //   console.log("set load error to true");
+              //   setLoadError(true); 
+              // }
+              // else{
                 restoreLocalData();
-              }
+              // }
               
             }
 
