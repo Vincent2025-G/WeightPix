@@ -29,7 +29,7 @@ import {
   } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-
+import {isTablet} from 'react-native-device-info';
   
   const styles = StyleSheet.create({
     container: {
@@ -45,8 +45,8 @@ import { NavigationContainer } from '@react-navigation/native';
             // textShadowRadius: 3,
             // textShadowOffset: {width: 0, height: 0},
             position: 'absolute',
-            left: '10%',
-            top: '10%'
+            left: !isTablet() ? '10%' : '30%',
+            top: !isTablet() ? '10%' : '20%',
         },
         titleText2: {
             fontSize: 30,
@@ -56,22 +56,22 @@ import { NavigationContainer } from '@react-navigation/native';
             // textShadowRadius: 3,
             // textShadowOffset: {width: 0, height: 0},
             position: 'absolute',
-            left: '7%',
-            top: '15%'
+            left: !isTablet() ? '7%' : '29%',
+            top: !isTablet() ? '15%' : '23%'
         },
     input:{
-      width: 300, 
-      height: 400, 
+      width: !isTablet() ? 300 : 400, 
+      height: !isTablet() ? 400 : 500, 
       position: 'absolute', 
-      left: '13%', 
-      top: '25%', 
+      left: !isTablet() ? '13%' : '25%', 
+      top: !isTablet() ? '25%' : '30%', 
       backgroundColor: 'white', 
       borderRadius: 15, 
       paddingTop: 20,
       paddingBottom: 180,
       paddingLeft: 20,
       paddingRight: 20,
-      fontSize: 20,
+      fontSize: !isTablet() ? 20 : 25,
       color: 'black',
       // borderWidth: 1,
       // borderColor: 'black'
@@ -82,13 +82,13 @@ import { NavigationContainer } from '@react-navigation/native';
         bottom: '8%'
     },
     doneButton1:{
-        position: 'absolute', right: 50, top: '21%', opacity: 1
+        position: 'absolute', right: !isTablet() ? 50 : 220, top: !isTablet() ? '21%' : '27%', opacity: 1
     },
     doneButton2:{
-        position: 'absolute', right: 50, top: '21%', opacity: 0
+        position: 'absolute', right: !isTablet() ? 50 : 220, top: !isTablet() ? '21%' : '27%', opacity: 0
     },
     text: {
-        fontSize: 23,
+        fontSize: !isTablet() ? 23 : 25,
         color: 'white',
         fontWeight: 'bold',
         textShadowColor: '#00ffff',
@@ -97,7 +97,7 @@ import { NavigationContainer } from '@react-navigation/native';
         
       },
     navigationText:{
-            fontSize: 30,
+            fontSize: !isTablet() ? 30 : 50,
             fontWeight: 700,
             color: "white",
             // textShadowColor: "#00ffff",
@@ -110,6 +110,8 @@ import { NavigationContainer } from '@react-navigation/native';
   type Props = NativeStackScreenProps<RootStackParamList, 'Onboard1'>;
 
   export const Onboard1 = ({navigation}: Props): React.JSX.Element=> {
+
+    // navigation.navigate('Payment')
 
     const [reasons, setReasons] = useState('');
     const [keyboardShow, setKeyboardShow] = useState(false);

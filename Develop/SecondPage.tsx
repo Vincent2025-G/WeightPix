@@ -49,8 +49,14 @@ ViewToken
 // import { PinchGesture } from 'react-native-gesture-handler/lib/typescript/handlers/gestures/pinchGesture';
 
 
-
-
+  // The width of the image for the phone and tablet.
+  const IMAGE_WIDTH = !isTablet() ? 220 : 300;
+  // Margin is 11 because the container has a margin of 10 and the border is 1.
+  const HORIZONTAL_MARGIN = 11;
+  // The total width of the flext
+  const TOTAL_WIDTH = IMAGE_WIDTH + (HORIZONTAL_MARGIN * 2);
+  
+  
 
 
  const styles = StyleSheet.create({
@@ -84,9 +90,10 @@ ViewToken
      flexDirection: 'row',
      position: 'absolute',
      bottom: 25,
-
-     gap: 225,
-     left: 10
+     left: !isTablet() ? 10 : 105,
+    // borderWidth: 1,
+    // borderColor: 'white',
+     gap: !isTablet() ? 225 : 425
    },
    navigationButtonContainer:{
      marginLeft: 35
@@ -102,12 +109,12 @@ ViewToken
      marginTop: 80
    },
    notePad:{
-     width: 300,
-     height: 400,
+     width: !isTablet() ? 300 : 420,
+     height: !isTablet() ? 400 : 520,
      flex:1,
      position: 'absolute',
-     left: '13%',
-     top: '30%',
+     left: !isTablet() ? '13%' : '24%',
+     top:'30%',
      backgroundColor: 'black',
      borderRadius: 15,
      paddingTop: 25,
@@ -127,8 +134,8 @@ ViewToken
      width: 200
    },
    image:{
-     width: !isTablet() ? 220 : 300,
-     height: !isTablet() ? 220 : 300,
+     width: IMAGE_WIDTH,
+     height: IMAGE_WIDTH,
      marginTop: '0%',
      borderRadius: 5,
      justifyContent: 'center',
@@ -138,8 +145,8 @@ ViewToken
    },
    imageLoading:{
     opacity: 0,
-     width: 220,
-     height: 220,
+     width: IMAGE_WIDTH,
+     height: IMAGE_WIDTH,
      marginTop: '0%',
      borderRadius: 5,
      justifyContent: 'center',
@@ -148,8 +155,8 @@ ViewToken
    },
    bigImageLoading1:{
     // opacity: 0,
-    width: 350,
-    height: 350,
+    width: !isTablet() ? 350 : 500,
+      height: !isTablet() ? 350 : 500,
      marginTop: '0%',
      borderRadius: 5,
      justifyContent: 'center',
@@ -158,8 +165,8 @@ ViewToken
    },
    bigImageLoading2:{
     // opacity: 0,
-      width: 350,
-      height: 350,
+      width: !isTablet() ? 350 : 500,
+      height: !isTablet() ? 350 : 500,
      marginTop: '0%',
      borderRadius: 5,
      justifyContent: 'center',
@@ -173,13 +180,13 @@ ViewToken
     
    },
    bigImage1:{
-     width: 350,
-     height: 350,
+  width: !isTablet() ? 350 : 500,
+      height: !isTablet() ? 350 : 500,
      borderRadius: 5,
    },
    bigImage2:{
-    width: 350,
-    height: 350,
+     width: !isTablet() ? 350 : 500,
+      height: !isTablet() ? 350 : 500,
      marginTop: '5%',
      marginBottom: '5%',
      borderRadius: 5,
@@ -192,7 +199,7 @@ ViewToken
     //  zIndex: 99
    },
    text: {
-       fontSize: 25,
+       fontSize: !isTablet() ? 25 : 35,
        color: 'white',
        fontWeight: 'bold',
        textShadowColor: '#00ffff',
@@ -209,7 +216,7 @@ ViewToken
       //  zIndex: 1
    },
    smallerText: {
-       fontSize: 17,
+       fontSize: !isTablet() ? 17 : 27,
        color: 'white',
        fontWeight: 'bold',
        textShadowColor: '#00ffff',
@@ -217,7 +224,7 @@ ViewToken
        textShadowRadius: 2, // Controls how far the shadow blurs out.
    },
    weightText: {
-       fontSize: 25,
+       fontSize: !isTablet() ? 25 : 35,
        color: 'white',
        fontWeight: 'bold',
        textShadowColor: '#00ffff',
@@ -226,7 +233,7 @@ ViewToken
        textDecorationColor: 'underline', // Controls how far the shadow blurs out.
    },
    dateText: {
-       fontSize: 25,
+       fontSize: !isTablet() ? 25 : 35,
        color: 'white',
        fontWeight: 'bold',
        textShadowColor: '#00ffff',
@@ -235,7 +242,7 @@ ViewToken
        marginLeft: 20
    },
    largeDateText: {
-       fontSize: 35,
+       fontSize: !isTablet() ? 35 : 45,
        color: 'white',
        fontWeight: 'bold',
        textShadowColor: '#00ffff',
@@ -244,7 +251,7 @@ ViewToken
        marginLeft: 20
    },
    textInputText:{
-     fontSize: 23,
+     fontSize: !isTablet() ? 23 : 33,
      color: 'white',
      fontWeight: 'bold',
      textShadowColor: '#00ffff',
@@ -297,7 +304,7 @@ ViewToken
    },
    exitButton1:{
     position: 'absolute',
-    left: 40,
+    left: !isTablet() ? 40 : 10,
     top: 85,
     opacity: 1,
     alignItems: 'center',
@@ -321,15 +328,16 @@ ViewToken
      borderColor: '#00ffff',
      borderWidth: 2,
      borderRadius: 5,
-     width: 40
+     width: !isTablet() ? 40 : 55
    },
    rangeButton1:{
      borderColor: '#00ffff',
      borderWidth: 2,
      borderRadius: 5,
-     width: 40,
+     width: !isTablet() ? 40 : 55,
+     height: !isTablet() ? 35 : 50,
      position: 'absolute',
-     right: 45,
+     right: !isTablet() ? 45 : 10,
      top: 85,
      alignItems: 'center'
    },
@@ -337,9 +345,10 @@ ViewToken
      borderColor: '#00ffff',
      borderWidth: 2,
      borderRadius: 5,
-     width: 40,
+     width: !isTablet() ? 40 : 55,
+     height: !isTablet() ? 35 : 50,
      position: 'absolute',
-     right: 45,
+     right: !isTablet() ? 45 : 10,
      top: 85,
      alignItems: 'center',
      shadowColor: '#00ffff',
@@ -448,6 +457,14 @@ useEffect(() => {
 
       return check;
   }
+
+
+  // If the image fails to load then it will try to restore the local data.
+  useEffect(() => {
+    if(loadError){
+       restoreLocalData();
+    }
+  }, [loadError]);
 
   
   // If ths is called then the setImages function failed
@@ -690,7 +707,7 @@ useEffect(() => {
         console.log("Image data is null");
       }
 
-      if(imageData != null && GlobalState.dataLength! > imageData!.length && imageData!.length > 0 && localHasData == true){
+      if(imageData != null && GlobalState.dataLength! > imageData!.length && localHasData == true){
         console.log("There is a difference:")
         const dbCollection = collection(firestore, 'Users');
         const docRef = doc(dbCollection, GlobalState.uid);
@@ -1101,6 +1118,7 @@ useEffect(() => {
      setMonth2('')
      setYear2('')
      setRangeSelected(false);
+     setValidSearch(true);
      setFiltered(imageData!);
    }
 
@@ -1177,7 +1195,7 @@ useEffect(() => {
 
          {isNotes ?
              <View key={currImage?.notes} style={styles.notePad}>
-                 <TouchableOpacity style={{position: 'absolute', top: 10, right: 10, width: 30, height: 30, alignItems: 'center', justifyContent: 'center', zIndex: 2 }}
+                 <TouchableOpacity style={{position: 'absolute', top: 10, right: 10, width: !isTablet() ?  30: 40, height: !isTablet() ?  30: 40, alignItems: 'center', justifyContent: 'center', zIndex: 2 }}
                  onPress={() => setisNotes(note => !note)}>
                <Text style={styles.text}>X</Text>
                </TouchableOpacity>
@@ -1190,8 +1208,8 @@ useEffect(() => {
              keyboardShouldPersistTaps="handled"
              >
              <Pressable>
-             <Text style={{color: 'white', fontSize: 20, lineHeight: 28, 
-             flexShrink: 1,  }}>{currImage?.notes}</Text>
+             <Text style={{color: 'white', fontSize: !isTablet() ?  20 : 25, lineHeight: !isTablet() ? 28 : 40, 
+             flexShrink: 1}}>{currImage?.notes}</Text>
              </Pressable>
              </ScrollView>
            
@@ -1203,7 +1221,7 @@ useEffect(() => {
 
 
        {(!selfieSelected && !fullBodySelected && (imageData != null && imageData!.length > 0) && !isNotes) ?
-       <View style={{width: 400}}>
+       <View style={{width: !isTablet() ? 400 : 450}}>
            {(weightSearch || dateSearch) && !isNotes ? 
                           <TouchableOpacity style={(weightSearch || dateSearch) ? styles.exitButton1 : styles.exitButton2} onPress={exitSearch}> 
                                   <Text style={styles.text}>X</Text>
@@ -1223,7 +1241,7 @@ useEffect(() => {
                               }
                               }
                             }> 
-                          <Image source={require('./range.png')} style={{width: 35, height: 30}} />
+                          <Image source={require('./range.png')} style={{width: !isTablet() ? 35 : 50, height: !isTablet() ? 30 : 45}} />
                           </TouchableOpacity> : null
                         }
                 {(dateSearch && !isNotes) ?
@@ -1243,7 +1261,7 @@ useEffect(() => {
                               }
                               }
                             }> 
-                          <Image source={require('./range.png')} style={{width: 35, height: 30}} />
+                          <Image source={require('./range.png')} style={{width: !isTablet() ? 35 : 50, height: !isTablet() ? 30 : 45}} />
                           </TouchableOpacity> : null
                         }
            <View style={styles.searchContainer}>
@@ -1367,7 +1385,7 @@ useEffect(() => {
                        
                        </View>
                             :  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                              <Image source={require('./mgi.png')} style={{height: 30, width: 30}}/>
+                              <Image source={require('./mgi.png')} style={{height: !isTablet() ? 30 : 40, width: !isTablet() ? 30 : 40}}/>
                               <Text style={styles.text}>  Select:</Text>
                               <TouchableOpacity style={{marginLeft: 8, borderWidth: 1, borderColor: '#00ffff', borderRadius: 15, backgroundColor: '#278686ff', padding: 2}}
                                onPress={() => {
@@ -1402,9 +1420,9 @@ useEffect(() => {
 
 
      {(!selfieSelected && !fullBodySelected) ?
-           <View style={{height: 650}}>
+           <View style={{height: !isTablet() ?  650 : 800}}>
        
-       <View style={{width: !isTablet() ? 340 : 600, height: !isTablet() ? 620 : 720, marginLeft: 0, alignItems: 'center'}}>
+       <View style={{width: !isTablet() ? 340 : 480, height: !isTablet() ? 620 : 720, marginLeft: 0, alignItems: 'center'}}>
 
        {(!isNotes) ? (
        <FlatList<imageDataType>
@@ -1415,15 +1433,15 @@ useEffect(() => {
            data={filteredImageData}
            keyExtractor={(item, index) => index.toString()}
            initialScrollIndex={Math.max(currIndex, 0)}
-          
+           windowSize={5}
            onViewableItemsChanged={onViewRef.current}
            viewabilityConfig={viewConfigRef.current}
 
            getItemLayout={(data, index) => ( 
-             {length: 242, offset: 242 * index, index}  
+             {length: TOTAL_WIDTH, offset: TOTAL_WIDTH * index, index}  
        )}
      renderItem={({item, index}) => (
-         <View style={{flex: 1}}>
+         <View style={{width: TOTAL_WIDTH}}>
 
            { !isNotes ? <View>
              <Pressable>
@@ -1444,13 +1462,10 @@ useEffect(() => {
 
 
               selfieLoadedList.current[index] = false
-              // if(!loadError){
-              //   console.log("set load error to true");
-              //   setLoadError(true); 
-              // }
-              // else{
-                restoreLocalData();
-              // }
+             
+                // restoreLocalData();
+
+                  setLoadError(true); 
               
             }
 
@@ -1501,11 +1516,10 @@ useEffect(() => {
 
 
            <TouchableOpacity style={{position: 'absolute', top: 40, right: 20}} onPress={() => setisNotes(note => !note)}>
-               <Image style={{width: 40, height: 40, borderRadius: 15, opacity: 1}} source={require('./notePadImage.png')}/>
+               <Image style={{width: !isTablet() ? 40 : 50, height: !isTablet() ? 40 : 50, borderRadius: 15, opacity: 1}} source={require('./notePadImage.png')}/>
                </TouchableOpacity>
                </View> : null}
            
-            
            </View>
             
            )}>
@@ -1605,7 +1619,7 @@ useEffect(() => {
                         } 
                       }
                      }} style={styles.navigationButton}>
-                     <Image source={require('./cameraIcon.png')} style={{width: 35, height: 35}}></Image>
+                     <Image source={require('./cameraIcon.png')} style={{width: !isTablet() ? 35 : 50, height: !isTablet() ? 35 : 50}}></Image>
                    </TouchableOpacity>
                  </View>
                  <View style={{justifyContent: 'center'}}>
@@ -1621,7 +1635,7 @@ useEffect(() => {
                 }}
                   style={styles.navigationButton}
                   >
-                     <Image source={require('./chartIcon.png')} style={{width: 35, height: 35}}/>
+                     <Image source={require('./chartIcon.png')} style={{width: !isTablet() ? 35 : 50, height: !isTablet() ? 35 : 50}}/>
                    </TouchableOpacity>
                  </View>
              </View>

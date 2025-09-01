@@ -222,23 +222,24 @@ import {isTablet} from 'react-native-device-info';
    timeSpanContainer: {
       height: 40,
       borderRadius: 5, 
-      flexDirection: 'row'
+      flexDirection: 'row',
+      marginBottom: !isTablet() ? 0 : 20
    }, 
    timeSpan: {
     alignItems: 'center', 
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#00ffff',
-    width: 40,
-    height: 40, 
+    width: !isTablet() ? 40 : 50,
+    height: !isTablet() ? 40 : 50,
    },
    timeSpanSelected: {
     alignItems: 'center', 
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#00ffff',
-    width: 40,
-    height: 40, 
+    width: !isTablet() ? 40 : 50,
+    height: !isTablet() ? 40 : 50,
     backgroundColor: '#00ffff'
    },
    timeSpanLeftEnd: {
@@ -246,8 +247,8 @@ import {isTablet} from 'react-native-device-info';
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#00ffff',
-    width: 40,
-    height: 40, 
+    width: !isTablet() ? 40 : 50,
+    height: !isTablet() ? 40 : 50, 
     borderTopLeftRadius: 5,
     borderBottomLeftRadius: 5,
    },
@@ -256,8 +257,8 @@ import {isTablet} from 'react-native-device-info';
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#00ffff',
-    width: 40,
-    height: 40, 
+    width: !isTablet() ? 40 : 50,
+    height: !isTablet() ? 40 : 50,
     borderTopLeftRadius: 5,
     borderBottomLeftRadius: 5,
     backgroundColor: '#00ffff'
@@ -267,8 +268,8 @@ import {isTablet} from 'react-native-device-info';
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#00ffff',
-    width: 40,
-    height: 40, 
+    width: !isTablet() ? 40 : 50,
+    height: !isTablet() ? 40 : 50,
     borderTopRightRadius: 5,
     borderBottomRightRadius: 5,
    },
@@ -277,8 +278,8 @@ import {isTablet} from 'react-native-device-info';
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#00ffff',
-    width: 40,
-    height: 40, 
+    width: !isTablet() ? 40 : 50,
+    height: !isTablet() ? 40 : 50,
     borderTopRightRadius: 5,
     borderBottomRightRadius: 5,
     backgroundColor: '#00ffff'
@@ -479,6 +480,7 @@ import {isTablet} from 'react-native-device-info';
      setMonth2('')
      setYear2('')
      setRangeSelected(false);
+     setValidSearch(true);
      setFiltered(route.params.imageData!);
    }
        

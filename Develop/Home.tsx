@@ -92,25 +92,27 @@ const styles = StyleSheet.create({
     imageTextContainer1: {
       position: "absolute",
       bottom: '45%',
-      left: '42%',
+      left: !isTablet() ? '41%' : '43%',
       flex: 1,
       flexDirection: 'row',
     },
     imageTextContainer2: {
       position: "absolute",
       bottom: '40%',
-      left: '44.5%',
+      left: !isTablet() ? '41%' : '44%',
       flex: 1,
       flexDirection: 'row',
       justifyContent: 'center',
-  
-      width: 100
+      backgroundColor: '#359EA0',
+      borderRadius: 10,
+      borderWidth: 1,
+      width: 80
     },
    
     photoPageButtonContainer:{
       position: 'absolute', 
-      right: "13%",
-      bottom: '7%',
+      right: !isTablet() ? "13%" : "20%",
+      bottom: !isTablet() ? '7%' : '5%',
       borderColor: '#00ffff',
       borderWidth: 2,
       borderRadius: 16,
@@ -132,7 +134,7 @@ const styles = StyleSheet.create({
     },
     flashButtonContainerOff:{
       position: 'absolute', 
-      left: 30, 
+      left: !isTablet() ?  30 : 100, 
       top: 62, 
       alignItems: 'center', 
       borderColor: '#00ffff', 
@@ -141,7 +143,7 @@ const styles = StyleSheet.create({
     },
     flashButtonContainerOn:{
       position: 'absolute', 
-      left: 30, 
+      left: !isTablet() ?  30 : 100, 
       top: 62, 
       alignItems: 'center',
       // shadowColor: '#00ffff',
@@ -154,7 +156,7 @@ const styles = StyleSheet.create({
     },
     flipCameraContainer:{
       position: 'absolute', 
-      right: 30, 
+      right: !isTablet() ?  30 : 100, 
       top: 60,
       borderColor: '#00ffff', 
       borderRadius: 50,
@@ -163,23 +165,23 @@ const styles = StyleSheet.create({
     accountContainer:{
       position: 'absolute', 
       bottom: 120,
-      left: 10,
+      left: !isTablet() ? 10 : 100,
       borderWidth: 1,
       borderRadius: 20,
       borderColor: 'grey',
       backgroundColor: 'white',
       opacity: 0.8,
-      width: 150,
+      width:!isTablet() ? 150 : 180,
       flexDirection: 'column',
       alignItems: 'center',      
       
       
     },
     confirmPasswordContainer:{
-      width: 280, 
+      width: !isTablet() ? 280 : 350, 
       height: 150, 
       position: 'absolute', 
-      left: '15.5%', 
+      left: !isTablet() ? '15.5%' : '30%', 
       top: '40%', 
       backgroundColor: 'white', 
       borderRadius: 15, 
@@ -192,7 +194,7 @@ const styles = StyleSheet.create({
     measurementContainer: {
       backgroundColor: 'grey',
       position: 'absolute',
-      left: 45,
+      left: !isTablet() ? 45 : 100,
       flexDirection: 'row',
       gap: 5, 
       borderRadius: 20, 
@@ -231,30 +233,30 @@ const styles = StyleSheet.create({
       borderBottomEndRadius: 20
     },
     notePad:{
-      width: 300, 
-      height: 300, 
+      width: !isTablet() ? 300 : 350, 
+      height: !isTablet() ? 300 : 400, 
       position: 'absolute', 
-      left: '13%', 
-      top: '8%', 
+      left:  '13%' , 
+      top:  '8%' , 
       backgroundColor: 'white', 
       borderRadius: 15, 
       paddingTop: 20,
       paddingBottom: 120,
       paddingLeft: 20,
       paddingRight: 20,
-      fontSize: 20,
+      fontSize: !isTablet() ? 20 : 25,
       color: 'black',
       borderWidth: 1,
       borderColor: '#00ffff' 
     },
     flashButton:{
-      height: 30, 
-      width: 30, 
+      height: !isTablet() ? 30 : 40, 
+      width: !isTablet() ? 30 : 40, 
       borderRadius: 50
     },
     flipCameraButton:{
-      height: 35, 
-      width: 35, 
+      height: !isTablet() ?  30 : 40, 
+      width:  !isTablet() ?  30 : 40, 
       borderRadius: 50,
       backgroundColor: 'white'
     },
@@ -285,7 +287,7 @@ const styles = StyleSheet.create({
       backgroundColor: 'grey',
       marginLeft: 5,
       borderRadius: 20,
-      width: 40
+      width:  !isTablet() ? 40 : 45
     },
     okButton2:{
       opacity: 0,
@@ -293,12 +295,12 @@ const styles = StyleSheet.create({
       backgroundColor: 'grey',
       marginLeft: 5,
       borderRadius: 20,
-      width: 40
+      width:  !isTablet() ? 40 : 45
     },
     accountButton:{
       backgroundColor: '#359EA0',
-      height: 50,
-      width: 50,
+      height: !isTablet() ? 50 : 55,
+      width: !isTablet() ? 50 : 55,
       borderRadius: 50,
       alignItems: 'center',
       justifyContent: 'center'
@@ -349,7 +351,7 @@ const styles = StyleSheet.create({
        height: 40,
     },
     text: {
-      fontSize: 23,
+      fontSize: !isTablet() ? 24 : 28,
       color: 'white',
       fontWeight: 'bold',
       // textShadowColor: '#00ffff',
@@ -358,7 +360,7 @@ const styles = StyleSheet.create({
       
     },
     text1: {
-      fontSize: 16,
+      fontSize: !isTablet() ? 16 : 20,
       color: 'white',
       fontWeight: 'bold',
       // textShadowColor: '#00ffff',
@@ -367,7 +369,7 @@ const styles = StyleSheet.create({
       
     },
     textInputText:{
-      fontSize: 23,
+      fontSize: !isTablet() ?  23 : 28,
       color: 'white',
       fontWeight: 'bold',
       textShadowColor: '#00ffff',
@@ -1404,10 +1406,10 @@ const styles = StyleSheet.create({
                 </TouchableOpacity>
 
                 <View style={{alignItems: 'center', flexDirection: 'column', marginTop: 15 }}>
-                <Text style={{fontSize: 15, marginTop: 10}}>Please confirm with your password</Text>
+                <Text style={{fontSize: !isTablet() ? 15 : 20, marginTop: 10}}>Please confirm with your password</Text>
                 <TextInput 
                 ref={passwordRef}
-                style={{fontSize: 17, borderWidth: 1, borderColor: 'grey', borderRadius: 15, width: 200, paddingLeft: 4, marginTop: 10,
+                style={{fontSize: !isTablet() ? 17 : 20, borderWidth: 1, borderColor: 'grey', borderRadius: 15, width: 200, paddingLeft: 4, marginTop: 10,
               }} placeholder='Password' placeholderTextColor="grey" 
               secureTextEntry={true}
               onChangeText={text => setPassword(text)}/>
@@ -1437,7 +1439,7 @@ const styles = StyleSheet.create({
                     <Text style={{fontSize: 18}}>X</Text>
                 </TouchableOpacity>
                 <View style={{alignItems: 'center', flexDirection: 'column', marginTop: 15 }}>
-              <Text style={{fontSize: 15, marginTop: 10}}>Please enter your new username</Text>
+              <Text style={{fontSize: !isTablet() ? 15 : 20, marginTop: 10}}>Please enter your new username</Text>
 
               <TextInput ref={usernameRef} placeholder={'Username'} placeholderTextColor='grey' style={styles.userNameInput}
               onChangeText={text => setNewUserName(text)} />
@@ -1458,7 +1460,7 @@ const styles = StyleSheet.create({
                     <Text style={{fontSize: 18}}>X</Text>
                 </TouchableOpacity>
                 <View style={{alignItems: 'center', flexDirection: 'column', marginTop: 15 }}>
-              <Text style={{fontSize: 15, marginTop: 10}}>Please enter your new goal weight</Text>
+              <Text style={{fontSize: !isTablet() ? 15 : 20, marginTop: 10}}>Please enter your new goal weight</Text>
 
               <TextInput ref={weightRef} placeholder={unit!} placeholderTextColor='grey' style={styles.input}
                keyboardType='numeric' onChangeText={text => setNewWeight(text)} maxLength={5} />
@@ -1474,11 +1476,11 @@ const styles = StyleSheet.create({
           null}
 
           {changeUnit ? 
-              <View style={{position: 'absolute', top: '50%', left: '22%', width: 300}}>
+              <View style={{position: 'absolute', top: '50%', left:  !isTablet() ? '22%' : '30%', width: 300}}>
                  
-                 <TouchableOpacity style={{zIndex: 1, position: 'absolute', top: 5, width: 30, height: 30,
+                 <TouchableOpacity style={{zIndex: 1, position: 'absolute', top: 5, left: !isTablet() ? 0 : 40, width: !isTablet() ?  30 : 35, height: !isTablet() ?  30 : 35,
                  alignItems: 'center', justifyContent: 'center', backgroundColor: 'grey', borderRadius: 20}} onPress={() => setChangeUnit(false)}>
-                  <Text style={{fontSize: 18, textShadowColor: '#00ffff', textShadowOffset: {width: 0, height: 0}, textShadowRadius: 2, 
+                  <Text style={{fontSize: !isTablet() ? 18 : 26, 
                 color: 'white', fontWeight: 700}}>X</Text>
                 </TouchableOpacity>
 
@@ -1498,7 +1500,7 @@ const styles = StyleSheet.create({
                   </TouchableOpacity>
                  
               </View> 
-                 <View style={{position: 'absolute', right: 80, top: 5.5}}>
+                 <View style={{position: 'absolute', right: !isTablet() ? 80 : 20, top: 5.5}}>
                      <TouchableOpacity onPress={confirmUnit} style={changeUnit ? styles.okButton1 : styles.okButton2}>  
                             <Text style={styles.text}>Ok</Text>
                       </TouchableOpacity>
@@ -1509,51 +1511,51 @@ const styles = StyleSheet.create({
           }
 
           {help ?
-           <View style={{position: 'absolute', left: 50, top: '16%', height: 420, width: 300, backgroundColor: '#258c8cff', borderRadius: 20, 
+           <View style={{position: 'absolute', left: !isTablet() ? 50 : 260, top: '16%', height: !isTablet() ? 420 : 600, width: !isTablet() ? 300 : 350, backgroundColor: '#258c8cff', borderRadius: 20, 
            flexDirection: 'column', alignItems: 'center', paddingTop: 60}}>
                <TouchableOpacity style={{zIndex: 1, position: 'absolute', top: 10, left: 10, width: 30, height: 30,
                  alignItems: 'center', justifyContent: 'center'}} onPress={() => setHelp(false)}>
-                  <Text style={{fontSize: 25, textShadowColor: '#00ffff', textShadowOffset: {width: 0, height: 0}, textShadowRadius: 2, 
+                  <Text style={{fontSize: !isTablet() ? 25 : 30, textShadowColor: '#00ffff', textShadowOffset: {width: 0, height: 0}, textShadowRadius: 2, 
                 color: 'white', fontWeight: 700}}>X</Text>
                 </TouchableOpacity>
 
                 {/* <Image source={require('./helpMenu.jpg')} style={{height: 500, width: 320}}/> */}
                  <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingLeft: 2}}>
-                  <Image source={require('./cbi.png')} style={{height: 20, width: 20}}/>
+                  <Image source={require('./cbi.png')} style={{height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40}}/>
                   <Text style={styles.text1}>  Capture Button</Text>
                   </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 20, paddingLeft: 2}}>
-                   <View style={{borderRadius: 25, borderWidth: 1, width: 20, height: 20, alignItems: 'center', justifyContent: 'center'}}>
+                   <View style={{borderRadius: 25, borderWidth: 1, height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, alignItems: 'center', justifyContent: 'center'}}>
                     <Text style={styles.text1}>{username.substring(0,1)}</Text>
                     </View>
                     <Text style={styles.text1}>  Account/Settings</Text>
                   </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 20, paddingLeft: 2}}>
-                <Image source={require('./flashIcon.png')} style={{height: 20, width: 20, borderRadius: 20}}/>
+                <Image source={require('./flashIcon.png')} style={{height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, borderRadius: 20}}/>
                   <Text style={styles.text1}>  Flash Button</Text>
                   </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 20, paddingLeft: 2}}>
-                <Image source={require('./ipiW.jpg')} style={{height: 20, width: 20, borderRadius: 20}}/>
+                <Image source={require('./ipiW.jpg')} style={{height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, borderRadius: 20}}/>
                   <Text style={styles.text1}>  Data Page Button</Text>
                   </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 20, paddingLeft: 2}}>
-                <Image source={require('./flipCameraImage.png')} style={{height: 20, width: 20, borderRadius: 20}}/>
+                <Image source={require('./flipCameraImage.png')} style={{height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, borderRadius: 20}}/>
                   <Text style={styles.text1}>  Flip Camera Button</Text>
                   </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 20, paddingLeft: 2}}>
-                 <Image style={{height: 20, width: 20, borderRadius: 15}} source={require('./notePadImage.png')}/>
+                 <Image style={{height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, borderRadius: 15}} source={require('./notePadImage.png')}/>
                   <Text style={styles.text1}>  Daily Journal</Text>
                   </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 20, paddingLeft: 2}}>
-                 <Image style={{height: 20, width: 20, borderRadius: 15}} source={require('./cameraIcon.png')}/>
+                 <Image style={{height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, borderRadius: 15}} source={require('./cameraIcon.png')}/>
                   <Text style={styles.text1}>  Main Page Button</Text>
                   </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 20, paddingLeft: 2}}>
-                 <Image style={{height: 20, width: 20, borderRadius: 15}} source={require('./chartIcon.png')}/>
+                 <Image style={{height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, borderRadius: 15}} source={require('./chartIcon.png')}/>
                   <Text style={styles.text1}>  Chart Page Button</Text>
                   </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 20, paddingLeft: 2}}>
-                 <Image style={{height: 20, width: 20, borderRadius: 15}} source={require('./range.png')}/>
+                 <Image style={{height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, borderRadius: 15}} source={require('./range.png')}/>
                   <Text style={styles.text1}>  Weight Range Button</Text>
                   </View>
             </View>
@@ -1595,19 +1597,21 @@ const styles = StyleSheet.create({
                               </View> 
                             <View style={styles.imageTextContainer2}>
                               <TextInput ref={inputRef} style={styles.textInputText} placeholder={unit!} keyboardType='numeric' maxLength={5} 
-                              onChangeText={(text) => setWeight(text)}/>
-                              <TouchableOpacity onPress={() => {
+                              onChangeText={(text) => setWeight(text)} placeholderTextColor={'white'}/>
+                            </View>
+                            <View style={{position: 'absolute', right: !isTablet() ? 110 : 320, top: !isTablet() ? '56.5%' : '57%'}}  >
+                            <TouchableOpacity onPress={() => {
                                 removeKeyboard()
                                 setJournalReady(item => !item);
                               }}
                                  style={keyboardShow ? styles.okButton1 : styles.okButton2}>  
                                 <Text style={styles.text}>Ok</Text>
                               </TouchableOpacity> 
-                            </View>
+                              </View>
                             <CopilotStep text='Journal' order={11} name='Journal'>
                               <WalkthroughableView style={{position: 'absolute', bottom: 50, left: '45%'}}>
                             <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center'}} onPress={() => setisNotes(note => !note)}>
-                              <Image style={{width: 50, height: 50, borderRadius: 15,  borderWidth: 1, borderColor: '#00ffff'}} source={require('./notePadImage.png')}/>
+                              <Image style={{width: !isTablet() ?  50 : 60, height: !isTablet() ?  50 : 60, borderRadius: 15,  borderWidth: 1, borderColor: '#00ffff'}} source={require('./notePadImage.png')}/>
                             </TouchableOpacity>
                             </WalkthroughableView>
                             </CopilotStep>
@@ -1615,8 +1619,8 @@ const styles = StyleSheet.create({
                                 // <View style={{flex: 1, position: 'absolute', 
                                 // left: '13%', 
                                 // top: '40%'}}>
-                                <View style={{ height: 350, width: 400, position: 'absolute', top: '30%'}}>
-                                  <TouchableOpacity style={{position: 'absolute', right: 50}} onPress={() => {
+                                <View style={{ height: !isTablet() ? 350 : 450, width: !isTablet() ? 400 : 450, position: 'absolute', top: !isTablet() ? '30%' : '40%', right: !isTablet() ? 0 : 180}}>
+                                  <TouchableOpacity style={{position: 'absolute', right: !isTablet() ? 50 : 50}} onPress={() => {
                                     setisNotes(false)
                                     Keyboard.dismiss()
                                   }
@@ -1656,7 +1660,7 @@ const styles = StyleSheet.create({
                         <CopilotStep text='Data' order={4} name='Data Button'>
                         <WalkthroughableView style={styles.photoPageButtonContainer}>  
                           <TouchableOpacity onPress={() => navigation.navigate('Data', {imageData: imageData!})}>
-                            <Image source={require('./ipiW.jpg')} style={{width: 40, height: 40, borderRadius: 15}}/>
+                            <Image source={require('./ipiW.jpg')} style={{width: !isTablet() ?  40 : 50, height: !isTablet() ?  40 : 50, borderRadius: 15}}/>
                           </TouchableOpacity>
                         </WalkthroughableView>
                         </CopilotStep>
@@ -1699,7 +1703,7 @@ const styles = StyleSheet.create({
                         </CopilotStep>          
 
                         <CopilotStep text="Account" order={3} name="Account Button">
-                        <WalkthroughableView style={{position: 'absolute', bottom: 55, left: 50}}> 
+                        <WalkthroughableView style={{position: 'absolute', bottom: 55, left: !isTablet() ? 50 : 160}}> 
                           <TouchableOpacity onPress={() => setShowAccount(item => !item)} style={styles.accountButton}>
                             <Text style={styles.text}>{username.substring(0,1)}</Text>
                           </TouchableOpacity>
@@ -1717,7 +1721,7 @@ const styles = StyleSheet.create({
                             setHasNewName(false);
                           }
                           }>
-                            <Text style={{fontSize: 17}}>Help</Text>
+                            <Text style={{fontSize: !isTablet() ? 17 : 20}}>Help</Text>
                           </TouchableOpacity>
                           <TouchableOpacity style={styles.accountOption1} onPress={() => {
                             
@@ -1729,7 +1733,7 @@ const styles = StyleSheet.create({
 
                            }
                           }>
-                            <Text style={{fontSize: 17}}>Change Username</Text>
+                            <Text style={{fontSize: !isTablet() ? 17 : 20}}>Change Username</Text>
                           </TouchableOpacity>
                           <TouchableOpacity style={styles.accountOption1} onPress={() => {
                             setChangeUnit(true);
@@ -1739,7 +1743,7 @@ const styles = StyleSheet.create({
                             setHasNewName(false);
                           }
                           }>
-                            <Text style={{fontSize: 17}}>Change Unit</Text>
+                            <Text style={{fontSize: !isTablet() ? 17 : 20}}>Change Unit</Text>
                           </TouchableOpacity>
                           <TouchableOpacity style={styles.accountOption2} onPress={() => {
                             setChangeUnit(false);
@@ -1748,7 +1752,7 @@ const styles = StyleSheet.create({
                             setShowAccount(false)
                             setHasNewName(false);
                           }}>
-                            <Text style={{fontSize: 17}}>New Goal?</Text>
+                            <Text style={{fontSize: !isTablet() ? 17 : 20}}>New Goal?</Text>
                           </TouchableOpacity>
 
                               <TouchableOpacity style={styles.accountOption3} onPress={() =>{
@@ -1768,7 +1772,7 @@ const styles = StyleSheet.create({
                     }]
                     
                     )}}>
-                                <Text style={{fontSize: 17}}>Reset Password</Text>
+                                <Text style={{fontSize: !isTablet() ? 17 : 20}}>Reset Password</Text>
                               </TouchableOpacity>
                               <TouchableOpacity  style={styles.accountOption4} onPress={ () => {
                                 setChangeUnit(false);
@@ -1785,10 +1789,10 @@ const styles = StyleSheet.create({
                         onPress: handleLogout,
                         style: 'default'
                     }])}}>
-                                <Text style={{fontSize: 17}}>Logout</Text>
+                                <Text style={{fontSize: !isTablet() ? 17 : 20}}>Logout</Text>
                               </TouchableOpacity>
                               <TouchableOpacity style={styles.accountOption5}>
-                                <Text style={{color: 'red', fontSize: 17}} onPress={() => {
+                                <Text style={{color: 'red', fontSize: !isTablet() ? 17 : 20}} onPress={() => {
                                 setChangeUnit(false);
                               sethasNewWeight(false);
                               setHelp(false);

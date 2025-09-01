@@ -33,6 +33,7 @@ import { useState, useEffect, useRef, useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import * as RNFS from '@dr.pogodin/react-native-fs';
 import { UserData } from './UserData.tsx';
+import {isTablet} from 'react-native-device-info';
 
   
   const styles = StyleSheet.create({
@@ -49,7 +50,7 @@ import { UserData } from './UserData.tsx';
             // textShadowRadius: 3,
             // textShadowOffset: {width: 0, height: 0},
             position: 'absolute',
-            left: '14%',
+            left: !isTablet() ? '14%' : '30%',
             top: '20%'
         },
         titleText2: {
@@ -60,7 +61,7 @@ import { UserData } from './UserData.tsx';
             // textShadowRadius: 3,
             // textShadowOffset: {width: 0, height: 0},
             position: 'absolute',
-            left: '37%',
+            left:  !isTablet() ?  '37%' : '40%',
             top: '25%'
         },
     input:{
@@ -71,7 +72,7 @@ import { UserData } from './UserData.tsx';
       top: '35%', 
       backgroundColor: 'white', 
       borderRadius: 15, 
-      fontSize: 20,
+      fontSize:  !isTablet() ?  20 : 25,
       color: 'black',
       // borderWidth: 1,
       // borderColor: '#00ffff',
@@ -85,7 +86,7 @@ import { UserData } from './UserData.tsx';
         bottom: '8%'
     },
     navigationText:{
-            fontSize: 30,
+            fontSize: !isTablet() ? 30 : 50,
             fontWeight: 700,
             color: "white",
             // textShadowColor: "#00ffff",
@@ -104,7 +105,7 @@ import { UserData } from './UserData.tsx';
         width: 40,
         height: 30,
         position: 'absolute',
-        left: '60%', 
+        left:  !isTablet() ?  '60%' : '52%', 
         top: '35%', 
       },
     okButton2:{
@@ -113,7 +114,7 @@ import { UserData } from './UserData.tsx';
      
       okButtonText:{
         color: 'black',
-        fontSize: 15
+        fontSize:  !isTablet() ?  15 : 20,
       }
     }
   )
@@ -127,11 +128,14 @@ import { UserData } from './UserData.tsx';
 
   export const Onboard2 = ({navigation}: routeProps): React.JSX.Element=> {
 
+    // navigation.navigate('Payment')
+
     const [keyboardShow, setKeyboardShow] = useState(false);
     const [weight, setWeight] = useState('');
     const {goalWeight, setGoalWeight} = useContext(UserData)
     const {completedOnboard, setCompletedOnboard} = useContext(UserData);
     const inputRef = useRef<RNTextInput>(null)
+    
 
     useEffect(() => {
         inputRef.current?.focus()
