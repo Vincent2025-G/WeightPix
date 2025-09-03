@@ -43,12 +43,13 @@ import { createNativeStackNavigator, NativeStackScreenProps} from '@react-naviga
 import { RootStackParamList } from './StackList';
 import { GlobalState } from './GlobalState';
 import { UserData } from './UserData';
+import {isTablet} from 'react-native-device-info';
 // import {initConnection, getSubscriptions} from 'react-native-iap'
 
 const styles = StyleSheet.create({
   subscriptionCard:{
-    height: 580, 
-    width: 300, 
+    height: !isTablet() ? 580 : 650, 
+    width: !isTablet() ? 300 : 420, 
     borderWidth: 1, 
     margin: 30,
     borderRadius: 15,
@@ -62,10 +63,12 @@ const styles = StyleSheet.create({
     
   },
   text:{
-    fontSize: 20, 
+    fontSize: !isTablet() ? 20 : 25, 
     color: 'black'
   },
-  largeText:{fontSize: 24,  fontWeight: 700,
+  largeText:{
+            fontSize: !isTablet() ? 24 : 30,  
+            fontWeight: 700,
             color: "black",
             alignSelf: 'center',
             marginBottom: 20, 
@@ -73,7 +76,7 @@ const styles = StyleSheet.create({
            },
           
   bullet:{
-      fontSize: 35, 
+      fontSize: !isTablet() ? 35 : 40, 
       color: 'black',
   },
   subscribeButton: {
@@ -86,7 +89,7 @@ const styles = StyleSheet.create({
         // marginBottom: 60,
         position: 'absolute',
         bottom: 80,
-        left: 25
+        left: !isTablet () ? 25 : 75
   },
   restorePurchaseButton: {
       width: 250,
@@ -97,7 +100,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#00ffff',
         position: 'absolute',
         bottom: 10,
-        left: 25
+        left: !isTablet () ? 25 : 75
   }
 })
 
@@ -304,10 +307,10 @@ export const Payment = ({navigation}: Prop) => {
                     <Text style={styles.text}>Access on any iOS device</Text>
                 </Text>
                 
-               <Text style={{fontSize: 20, color: 'black', marginTop: 30, alignSelf: 'center'}}>$4.99/month</Text>
+               <Text style={{fontSize: !isTablet() ? 20 : 25, color: 'black', marginTop: 30, alignSelf: 'center'}}>$4.99/month</Text>
                 {subscriptions.length > 0 ? <TouchableOpacity onPress={() => handleBuySubscription(subscriptions[0].productId)} style={ styles.subscribeButton}>
                 {/* <Text>{subscriptions[0].title} - {subscriptions[0].description}</Text> */}
-                <Text style={{color: 'white', fontSize: 20, fontWeight: 700}}>Subscribe</Text>
+                <Text style={{color: 'white', fontSize:  !isTablet() ? 20 : 25, fontWeight: 700}}>Subscribe</Text>
             </TouchableOpacity> : 
             //      <TouchableOpacity onPress={() => handleBuySubscription(fakeSubscriptions[0].productId)} style={ styles.subscribeButton}>
             //     {/* <Text>{subscriptions[0].title} - {subscriptions[0].description}</Text> */}
@@ -316,8 +319,7 @@ export const Payment = ({navigation}: Prop) => {
             null
             }
                 {subscriptions.length > 0 ? <TouchableOpacity onPress={() => handleRestorePurchase()} style={ styles.restorePurchaseButton}>
-                {/* <Text>{subscriptions[0].title} - {subscriptions[0].description}</Text> */}
-                <Text style={{color: 'white', fontSize: 20, fontWeight: 700}}>Restore Purchase</Text>
+                <Text style={{color: 'white', fontSize:  !isTablet() ? 20 : 25, fontWeight: 700}}>Restore Purchase</Text>
             </TouchableOpacity> : 
             null
             }

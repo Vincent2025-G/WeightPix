@@ -36,6 +36,7 @@ import FastImage from 'react-native-fast-image';
 import * as RNFS from '@dr.pogodin/react-native-fs';
 import {useCheckSubscriptionInfo} from './subscriptionCheck';
 import { imageDataType } from './StackList';
+import {isTablet} from 'react-native-device-info';
 
   
 
@@ -69,8 +70,8 @@ import { imageDataType } from './StackList';
         // textShadowRadius: 3,
         // textShadowOffset: {width: 0, height: 0},
         position: 'absolute',
-        left: '21%',
-        top: 60
+        left: !isTablet() ? '21%' : '38%',
+        top: !isTablet() ? 60 : 205
     },
     titleText2: {
         fontSize: 40,
@@ -80,8 +81,8 @@ import { imageDataType } from './StackList';
         // textShadowRadius: 3,
         // textShadowOffset: {width: 0, height: 0},
         position: 'absolute',
-        left: '26%',
-        top: 105
+        left: !isTablet() ? '26%' : '40%',
+        top: !isTablet() ? 105 : 250
     },
     loginText: {
         fontSize: 30,
@@ -256,7 +257,7 @@ import { imageDataType } from './StackList';
                     <TextInput placeholder='Password' style={styles.textInput} secureTextEntry={true} placeholderTextColor={'grey'} onChangeText={text => setPassword(text)}/>
                     </View>
 
-                    <View style={{flexDirection:"row", marginBottom: 80, marginRight: 55, alignSelf: 'flex-end'}}>
+                    <View style={{flexDirection:"row", marginBottom: 80, marginRight: !isTablet() ? 55 : 260, alignSelf: 'flex-end'}}>
             
             <TouchableOpacity onPress={() => {
                 if(email.length < 4){
