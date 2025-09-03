@@ -49,7 +49,6 @@ function App(): React.JSX.Element {
   const [completedOnboard, setCompletedOnboard] = useState<boolean | null>(null);
   const [initialNavReady, setInitialNavReady] = useState(false);
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
-  // const {completedOnboard, setCompletedOnboard} = useContext(UserData);
   interface UserDataTypes{
     photos: imageDataType[],
     endTime: Timestamp, 
@@ -77,20 +76,7 @@ function App(): React.JSX.Element {
     return () => check();
   }, [])
 
-  // useEffect(() => {
-  //   const getDataLength = async () => {
-  //     const dbCollection = collection(firestore, 'Users');
-  //     const docRef = doc(dbCollection, GlobalState.uid);
-  //     const docSnap = await getDoc(docRef);
-  //     if(docSnap.exists()){
-  //       const user = docSnap.data;
-        
-  //     }
-  //   }
-
-  //   getDataLength();
-
-  // }, [])
+ 
 
   
   useEffect(() => {

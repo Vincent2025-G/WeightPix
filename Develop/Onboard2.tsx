@@ -168,8 +168,7 @@ import {isTablet} from 'react-native-device-info';
         if(weight.length !== 0){
         try{
             const dbCollection = collection(firestore, 'Users');
-            await doc(dbCollection, GlobalState.uid).update({goalWeight: weight});
-            await doc(dbCollection, GlobalState.uid).update({completedOnboard: true}); 
+            await doc(dbCollection, GlobalState.uid).update({goalWeight: weight, completedOnboard: true}); 
             setGoalWeight(weight);
             // await doc(dbCollection, GlobalState.uid).update({[deviceName]: RNFS.DocumentDirectoryPath.split('/')[6]})
             setCompletedOnboard(true);

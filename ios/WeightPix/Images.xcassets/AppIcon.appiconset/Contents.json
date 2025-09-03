@@ -26,13 +26,13 @@
       "size" : "40x40"
     },
     {
-      "filename" : "smallerNewWPIcon.png",
+      "filename" : "WP_Smaller.png",
       "idiom" : "iphone",
       "scale" : "3x",
       "size" : "40x40"
     },
     {
-      "filename" : "smallerNewWPIcon 1.png",
+      "filename" : "WP_Smaller 1.png",
       "idiom" : "iphone",
       "scale" : "2x",
       "size" : "60x60"
@@ -43,7 +43,7 @@
       "size" : "60x60"
     },
     {
-      "filename" : "newWPIcon.png",
+      "filename" : "WP.png",
       "idiom" : "ios-marketing",
       "scale" : "1x",
       "size" : "1024x1024"

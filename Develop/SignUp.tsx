@@ -103,7 +103,7 @@ import {
     
     
     
-
+    // Creates the user info in firebase auth and firestore database.
     const createUser = async () => {
         try{
 
@@ -133,7 +133,6 @@ import {
                 Alert.alert("Error", "There was a verification error. Please try again!", [{text: "Cancel", style: 'cancel'}, {text: "Retry", style: "default", onPress: () => sendEmailVerification(user)}]);
             });
 
-            
             // GlobalState.email = email;
             // GlobalState.uid = user.uid;
             await signOut(auth);
@@ -152,24 +151,7 @@ import {
         }
     }
 
-
-    // const checkIfUserExists = async () => {
-    //     try{
-    //         console.log("Email: " + email.trim().toLowerCase())
-
-    //         const dbCollection = collection(firestore, 'Users');
-    //         const q = query(dbCollection, where("email", "==", email));
-    //         const docs = await getDocs(q);
-            
-    //         docs.forEach((doc: any) => {
-    //              console.log(doc.id, " => ", doc.data());
-    //         });
-    //     }
-    //     catch(error){
-    //         console.log(error);
-    //     }
-    // }
-
+    // Validates the password and other credentials before creating the user.
     const handleSignUp = async () => {
         const status = await validatePassword(auth, password);
 
@@ -205,7 +187,6 @@ import {
         }
 
         await createUser();
-        // await checkIfUserExists();
     }
 
 

@@ -1,29 +1,11 @@
 import {
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TextInput as RNTextInput,
-    useColorScheme,
-    View,
-    FlatList,
-    SectionList,
-    Image,
-    ImageBackground,
-    TouchableWithoutFeedback,
-    Keyboard,
-    TouchableOpacity,
-    InteractionManager,
-    Animated,
-    DevSettings,
+
     Alert,
-    Platform
+    
   } from 'react-native';
 import * as RNFS from '@dr.pogodin/react-native-fs';
 import { auth, firestore } from './Firebase.ts';
 import {collection, doc, getDoc, updateDoc, Timestamp} from '@react-native-firebase/firestore';
-import {signOut} from '@react-native-firebase/auth';
 import {GlobalState} from './GlobalState.ts';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack'; 
@@ -45,13 +27,11 @@ const navigation = useNavigation<Prop>();
 const state = navigation.getState();
 const currentScreen = state.routes[state.index].name;
 
-const {setValidSubscription, imageData} = useContext(UserData);
+const {setValidSubscription} = useContext(UserData);
 const userDir = `${RNFS.DocumentDirectoryPath}/${GlobalState.uid}`;
 
-const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new Date(), paid: boolean) => {
-        // Store in Database
+const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new Date(), paid: boolean) => {    
       
-
         // Store in Local Storage. 
         try{
             const exists = await RNFS.exists(userDir);
@@ -66,13 +46,14 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
         }
     } 
 
-     const validateReceipt = async (receipt: string, subInfoPath: string, page: string, photoLength: number): Promise<boolean> => {
+    // Validates the receipt either from local storage or from the database or directly from payment.
+     const validateReceipt = async (receipt: string, subInfoPath: string, page: string, photoLength: number) => {
                     const controller = new AbortController();
                     const timeout = setTimeout(() => controller.abort(), 8000);
                     const result = await fetch("http://192.168.1.12:5001/weightwatcher-2d8cf/us-central1/receiptProcessor", {     
                     method: "POST", 
                     headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({receiptData: receipt, uid: GlobalState.uid}) ,
+                    body: JSON.stringify({receiptData: receipt, uid: GlobalState.uid}),
                     signal: controller.signal
                     }).catch(error => {
                     const message = error?.toString() || "";
@@ -87,12 +68,12 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                     else if (message.includes("status:210")) {
                         Alert.alert("Subscription issue", "Your subscription could not be verified. Please try restoring purchases or subscribing again.");
                         storeReceiptData(subInfoPath, undefined, false);
-                         return false;
+                         return;
                     } 
                     else {
                         Alert.alert("Unexpected error", "Something went wrong while verifying your purchase.");
                         storeReceiptData(subInfoPath, undefined, false);
-                         return false;
+                         return;
                     }
                     });     
                     
@@ -119,11 +100,6 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                     }
                     
                     storeReceiptData(subInfoPath, expirationDate, true);
-    
-                    // const data = await RNFS.readFile(subInfoPath);
-    
-                    // console.log("From the local storage: " + data);
-
                     
                     if((currentScreen == "Payment" || currentScreen == 'Login') && GlobalState.uid.length > 0 && photoLength > 0){
                         navigation.navigate('Data', {imageData: null});
@@ -138,10 +114,11 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                          navigation.navigate('Home');
                     }
 
-                    return expired;
+                    return;;
       }
 
 
+      // Fetches the subscription info from firestore database if it doesn't exist/is expired in local storage
     const fetchFromDatabase = async (subInfoPath: string, page: string, photoLength: number) => {
             try{
                 const dbCollection = collection(firestore, "Users");
@@ -194,6 +171,12 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                         else if(page == "Data" && GlobalState.uid.length > 0){
                             navigation.navigate('Data', {imageData: null});
                         }
+                        else if(page == "Login" && photoLength > 0 && GlobalState.uid.length > 0){
+                            navigation.navigate('Data', {imageData: null});
+                        }
+                        else if(page == "Login" && GlobalState.uid.length > 0){
+                            navigation.navigate("Home");
+                        }
                     }
                     else{ 
                         try{
@@ -206,10 +189,7 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                         }  
                     }
                 }
-                // else{
-                //     Alert.alert("Please renew your subscripton");
-                //     navigation.navigate("Payment");
-                // }
+             
             }
             catch(error){
                 console.log("Error with database: " + error);
@@ -225,6 +205,7 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                             fetchFromDatabase(subInfoPath, currentScreen, photoLength);
                             return;
                         }
+                        
                         const subscriptionStringInfo = await RNFS.readFile(subInfoPath);
                         const subscriptionInfo = JSON.parse(subscriptionStringInfo);
                         console.log("This is the parsed data: " + subscriptionStringInfo);
