@@ -27,9 +27,10 @@ import {
 //   import { doc, setDoc } from "firebase/firestore";
   import { auth, firestore } from './Firebase.ts';
   import firebase from "@react-native-firebase/app";
-  import {collection, getDocs, Timestamp, where, query, doc} from '@react-native-firebase/firestore'
+  import {collection, getDocs, Timestamp, where, query, doc, setDoc} from '@react-native-firebase/firestore'
   import {useState} from 'react'
   import { GlobalState } from './GlobalState.ts';
+import { set } from 'date-fns';
 // import { stat } from 'fs';
 
   const styles = StyleSheet.create({
@@ -112,8 +113,7 @@ import {
             const user = (await userCredentials).user;
             
             const dbCollection = await collection(firestore, 'Users')
-            doc(dbCollection, user.uid)
-            .set({
+            await setDoc(doc(dbCollection, user.uid), {
               uid: user.uid,
               username: username.length === 0 ? 'Guest' : username,
               photos: [],
@@ -124,18 +124,22 @@ import {
               goalWeight: '',
               unit: 'lb',
               paid: false
-            });
+            })
 
-            sendEmailVerification(user).then(() => {
+            sendEmailVerification(user).then(async () => {
                 Alert.alert("Email verfication sent!");
-            }).catch(error => {
+                await signOut(auth);
+                GlobalState.uid = '';
+            }).catch(async (error) => {
                 console.log("Error with verification: " + error);
                 Alert.alert("Error", "There was a verification error. Please try again!", [{text: "Cancel", style: 'cancel'}, {text: "Retry", style: "default", onPress: () => sendEmailVerification(user)}]);
+                await signOut(auth);
+                GlobalState.uid = '';
             });
 
             // GlobalState.email = email;
             // GlobalState.uid = user.uid;
-            await signOut(auth);
+            
             navigation.navigate('Login');  
         }   
         catch (error) {

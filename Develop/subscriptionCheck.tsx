@@ -150,7 +150,7 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                             console.log("Error: " + error);
                         }  
                         return;
-                    }
+                    } 
                     
                     const subDate = new Date(user!.expirationDate.toDate())
                     console.log("Database expiration date: " + subDate + " Now: " + now);
@@ -196,16 +196,16 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
             }
         }
 
-    const checkLocal = async (subInfoPath: string, photoLength: number) => {
+    const checkLocal = async (subInfoPath: string, photoLength: number): Promise<boolean> => {
          try{
                         const exists = await RNFS.exists(subInfoPath);
         
                         if(!exists){
                             console.log("Doesn't exist!")
                             fetchFromDatabase(subInfoPath, currentScreen, photoLength);
-                            return;
+                            return false;
                         }
-                        
+
                         const subscriptionStringInfo = await RNFS.readFile(subInfoPath);
                         const subscriptionInfo = JSON.parse(subscriptionStringInfo);
                         console.log("This is the parsed data: " + subscriptionStringInfo);
@@ -216,6 +216,7 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                             console.log("Local expiration date: " + subDate + " Now:" + now);
                             if(subDate > now){
                                 setValidSubscription(true);
+                                return true;
                                 console.log("Valid local expiration date!");
                                 if(currentScreen == 'Login' && photoLength > 0){
                                     navigation.navigate('Data', {imageData: null});
@@ -232,12 +233,14 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                             // fetchFromDatabase(subInfoPath, "Home");
                             Alert.alert("Please subscribe!");
                             navigation.navigate("Payment");
-                            return;
+                            return false;
                         }
                     }
                     catch(error){
                         console.log("Error: " + error);
                     }
+
+                    return false;
              }
 
         return {

@@ -206,7 +206,7 @@ export const Payment = ({navigation}: Prop) => {
          await restorePurchases();
          const receiptInfo = await getReceiptIOS({forceRefresh: true});
          if(receiptInfo){
-            validate(receiptInfo, subInfoPath, "Home", imageData?.length ?? 0);
+            validate(receiptInfo, subInfoPath, "Home", GlobalState.dataLength ?? 0);
          }
     }
     catch(error){
