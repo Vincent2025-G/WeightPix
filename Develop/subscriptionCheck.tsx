@@ -6,6 +6,7 @@ import {
 import * as RNFS from '@dr.pogodin/react-native-fs';
 import { auth, firestore } from './Firebase.ts';
 import {collection, doc, getDoc, updateDoc, Timestamp} from '@react-native-firebase/firestore';
+import {getIdToken} from '@react-native-firebase/auth';
 import {GlobalState} from './GlobalState.ts';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack'; 
@@ -13,6 +14,7 @@ import { RootStackParamList } from './StackList.ts';
 import {useIAP, getReceiptIOS} from 'react-native-iap'
 import React, {useState, useContext} from 'react';
 import { UserData } from './UserData';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 interface UserDataTypes{
         expirationDate: Timestamp,
@@ -48,12 +50,21 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
 
     // Validates the receipt either from local storage or from the database or directly from payment.
      const validateReceipt = async (receipt: string, subInfoPath: string, page: string, photoLength: number) => {
+                    // Sending the idToken to verify that it's a valid user
+                    const idToken = await getIdToken(auth.currentUser!, true);
+
                     const controller = new AbortController();
                     const timeout = setTimeout(() => controller.abort(), 8000);
                     const result = await fetch("http://192.168.1.12:5001/weightwatcher-2d8cf/us-central1/receiptProcessor", {     
                     method: "POST", 
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({receiptData: receipt, uid: GlobalState.uid}),
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${idToken}`
+                    },
+                    body: JSON.stringify({
+                        receiptData: receipt, 
+                    }
+                    ),
                     signal: controller.signal
                     }).catch(error => {
                     const message = error?.toString() || "";
@@ -79,6 +90,7 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                     
                     clearTimeout(timeout);
                     const jsonResponse = await result!.json(); 
+                    console.log("result status: " + result!.status);
                     
                     const now = new Date();
                     const expirationDate = new Date(jsonResponse.ExpireDate);

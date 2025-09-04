@@ -174,22 +174,22 @@ import {isTablet} from 'react-native-device-info';
             const userCredentials = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredentials.user;
 
-            if(!user.emailVerified){ 
-                            console.log("User hasn't verified their email!");   
-                            Alert.alert("Alert", "Please verify your email to login!", [{text: "Cancel", style: "cancel"}, {text: "Verify", style: "default", onPress: () => {
-                                 sendEmailVerification(user).then(async () => {
-                            Alert.alert("Email verfication sent!");
-                            await signOut(auth);
-                            }).catch(async (error) => {
-                                console.log("Error with verification: " + error);
-                                Alert.alert("Error", "There was a verification error. Please try again!", [{text: "Cancel", style: 'cancel'}, {text: "Retry", style: "default", onPress: () => sendEmailVerification(user)}]);
-                                await signOut(auth);
-                            });
-                            }}]);
+            // if(!user.emailVerified){ 
+            //                 console.log("User hasn't verified their email!");   
+            //                 Alert.alert("Alert", "Please verify your email to login!", [{text: "Cancel", style: "cancel"}, {text: "Verify", style: "default", onPress: () => {
+            //                      sendEmailVerification(user).then(async () => {
+            //                 Alert.alert("Email verfication sent!");
+            //                 await signOut(auth);
+            //                 }).catch(async (error) => {
+            //                     console.log("Error with verification: " + error);
+            //                     Alert.alert("Error", "There was a verification error. Please try again!", [{text: "Cancel", style: 'cancel'}, {text: "Retry", style: "default", onPress: () => sendEmailVerification(user)}]);
+            //                     await signOut(auth);
+            //                 });
+            //                 }}]);
                             
-                            return;
+            //                 return;
 
-            }
+            // }
                 let photoLength = 0;
 
                 try{

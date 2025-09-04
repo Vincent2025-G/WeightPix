@@ -605,8 +605,6 @@ useEffect(() => {
       const objData = await RNFS.readFile(objPath, 'utf8');
       let localStorageData = JSON.parse(objData);
       localStorageData = [...localStorageData, newObj];
-      // setImageData(localStorageData);
-      // setFiltered(localStorageData);
 
       await RNFS.writeFile(objPath, localStorageData, 'utf8');
       console.log("This is the local storage data " + localStorageData)

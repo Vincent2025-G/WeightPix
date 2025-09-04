@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import {
     ScrollView,
     StatusBar,
@@ -31,6 +33,7 @@ import {
   import {useState} from 'react'
   import { GlobalState } from './GlobalState.ts';
 import { set } from 'date-fns';
+import DeviceInfo, { getDevice } from 'react-native-device-info';
 // import { stat } from 'fs';
 
   const styles = StyleSheet.create({
@@ -101,6 +104,18 @@ import { set } from 'date-fns';
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [username, setUserName] = useState(''); 
+    const [deviceID, setDeviceID] = useState('');
+
+    useEffect(() => {
+       const getDeviceInfo = async () => {
+        const id = await DeviceInfo.getUniqueId();
+        setDeviceID(id);
+        console.log("Device ID: " + id);
+       }
+
+        getDeviceInfo();
+
+    }, []);
     
     
     
@@ -123,7 +138,8 @@ import { set } from 'date-fns';
               reasons: '',
               goalWeight: '',
               unit: 'lb',
-              paid: false
+              paid: false,
+              deviceID: deviceID
             })
 
             sendEmailVerification(user).then(async () => {
