@@ -49,7 +49,6 @@ function App(): React.JSX.Element {
   const [completedOnboard, setCompletedOnboard] = useState<boolean | null>(null);
   const [initialNavReady, setInitialNavReady] = useState(false);
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
-  // const {completedOnboard, setCompletedOnboard} = useContext(UserData);
   interface UserDataTypes{
     photos: imageDataType[],
     endTime: Timestamp, 
@@ -57,6 +56,8 @@ function App(): React.JSX.Element {
   }
 
   const navigationRef = createNavigationContainerRef();
+
+  
  
   useEffect(() => {
     console.log('completedOnboard:', completedOnboard);
@@ -77,20 +78,7 @@ function App(): React.JSX.Element {
     return () => check();
   }, [])
 
-  // useEffect(() => {
-  //   const getDataLength = async () => {
-  //     const dbCollection = collection(firestore, 'Users');
-  //     const docRef = doc(dbCollection, GlobalState.uid);
-  //     const docSnap = await getDoc(docRef);
-  //     if(docSnap.exists()){
-  //       const user = docSnap.data;
-        
-  //     }
-  //   }
-
-  //   getDataLength();
-
-  // }, [])
+ 
 
   
   useEffect(() => {
@@ -143,11 +131,12 @@ function App(): React.JSX.Element {
     useEffect(() => {
       
       const checkIfOnboard = async () => {
+        console.log("Checking if completed onboard!");
         try{
           const dbCollection = collection(firestore, 'Users'); 
           const docRef = doc(dbCollection, GlobalState.uid);
           const docSnapShot = await getDoc(docRef); 
-
+ 
           if(docSnapShot.exists()){
             const user = docSnapShot.data() as UserDataTypes;
             console.log(user?.completedOnboard + " onboard?")
@@ -243,6 +232,7 @@ function App(): React.JSX.Element {
 
 
 useEffect(() => {
+  // setInitialRoute("Login")
   
   console.log(userSignedIn + " " + allowedAccess +  " " + completedOnboard);
   if(userSignedIn && completedOnboard){
@@ -289,7 +279,6 @@ if(initialRoute === null){
      <Stack.Screen name="ChartPage" component={ChartPage}/>
      
    
-
         <Stack.Screen name="Onboard1" component={Onboard1}/>
         <Stack.Screen name="Onboard2" 
       //   children={(props) => (

@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 import {
     ScrollView,
     StatusBar,
@@ -27,9 +29,11 @@ import {
 //   import { doc, setDoc } from "firebase/firestore";
   import { auth, firestore } from './Firebase.ts';
   import firebase from "@react-native-firebase/app";
-  import {collection, getDocs, Timestamp, where, query, doc} from '@react-native-firebase/firestore'
+  import {collection, getDocs, Timestamp, where, query, doc, setDoc} from '@react-native-firebase/firestore'
   import {useState} from 'react'
   import { GlobalState } from './GlobalState.ts';
+import { set } from 'date-fns';
+import DeviceInfo, { getDevice } from 'react-native-device-info';
 // import { stat } from 'fs';
 
   const styles = StyleSheet.create({
@@ -100,10 +104,22 @@ import {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [username, setUserName] = useState(''); 
-    
-    
-    
+    const [deviceID, setDeviceID] = useState('');
 
+    useEffect(() => {
+       const getDeviceInfo = async () => {
+        const id = await DeviceInfo.getUniqueId();
+        setDeviceID(id);
+        console.log("Device ID: " + id);
+       }
+
+        getDeviceInfo();
+
+    }, []);
+    
+    
+    
+    // Creates the user info in firebase auth and firestore database.
     const createUser = async () => {
         try{
 
@@ -112,8 +128,7 @@ import {
             const user = (await userCredentials).user;
             
             const dbCollection = await collection(firestore, 'Users')
-            doc(dbCollection, user.uid)
-            .set({
+            await setDoc(doc(dbCollection, user.uid), {
               uid: user.uid,
               username: username.length === 0 ? 'Guest' : username,
               photos: [],
@@ -123,20 +138,24 @@ import {
               reasons: '',
               goalWeight: '',
               unit: 'lb',
-              paid: false
-            });
+              paid: false,
+              deviceID: deviceID
+            })
 
-            sendEmailVerification(user).then(() => {
+            sendEmailVerification(user).then(async () => {
                 Alert.alert("Email verfication sent!");
-            }).catch(error => {
+                await signOut(auth);
+                GlobalState.uid = '';
+            }).catch(async (error) => {
                 console.log("Error with verification: " + error);
                 Alert.alert("Error", "There was a verification error. Please try again!", [{text: "Cancel", style: 'cancel'}, {text: "Retry", style: "default", onPress: () => sendEmailVerification(user)}]);
+                await signOut(auth);
+                GlobalState.uid = '';
             });
 
-            
             // GlobalState.email = email;
             // GlobalState.uid = user.uid;
-            await signOut(auth);
+            
             navigation.navigate('Login');  
         }   
         catch (error) {
@@ -152,24 +171,7 @@ import {
         }
     }
 
-
-    // const checkIfUserExists = async () => {
-    //     try{
-    //         console.log("Email: " + email.trim().toLowerCase())
-
-    //         const dbCollection = collection(firestore, 'Users');
-    //         const q = query(dbCollection, where("email", "==", email));
-    //         const docs = await getDocs(q);
-            
-    //         docs.forEach((doc: any) => {
-    //              console.log(doc.id, " => ", doc.data());
-    //         });
-    //     }
-    //     catch(error){
-    //         console.log(error);
-    //     }
-    // }
-
+    // Validates the password and other credentials before creating the user.
     const handleSignUp = async () => {
         const status = await validatePassword(auth, password);
 
@@ -205,7 +207,6 @@ import {
         }
 
         await createUser();
-        // await checkIfUserExists();
     }
 
 

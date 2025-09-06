@@ -421,22 +421,10 @@ const styles = StyleSheet.create({
   });
 
   
-
-  // type navProps = NativeStackScreenProps<RootStackParamList, "Home">;
-  
-  // type customProps = {
-  //   imageData: imageDataType[];
-  //   setImageData: React.Dispatch<React.SetStateAction<imageDataType[]>>;
-  // }
-
-  // type Props = navProps & customProps;
   type Props =  NativeStackScreenProps<RootStackParamList, "Home">;
 
   export const HomeScreen = ({navigation} : Props): React.JSX.Element => {
 
-    // navigation.navigate("Payment"); 
-
-    
 
     interface UserDataTypes{
       unit: string,
@@ -447,10 +435,6 @@ const styles = StyleSheet.create({
 
   const {imageData, setImageData, setGoalWeight, setUnit, unit, goalWeight } = useContext(UserData);
   const userDir = `${RNFS.DocumentDirectoryPath}/${GlobalState.uid}`;
-
-  // console.log("This is the data length: " + imageData!.length)
-   
-  // console.log("Document Directory Path: " + RNFS.DocumentDirectoryPath.split('/')[6]);
   
 
   const objPath = `${userDir}/images.json`;
@@ -458,8 +442,8 @@ const styles = StyleSheet.create({
   const changedDataPath = `${userDir}/changeddata.json`;
   const subInfoPath = `${userDir}/subInfo`;
 
-  // console.log("Current object path: " + objPath);
 
+  // Fetching the username from the database only when empty.
   useEffect(() => {
     if(username == ''){
       const fetchUserData = async () => {
@@ -487,45 +471,9 @@ const styles = StyleSheet.create({
   }
  }, [])
 
-    // useEffect(() => {
-
     
-      
-    //   const populateImages = async () => {
 
-    //     const files = await RNFS.readDir(userDir);
-    //     if(files == null || !files || files.length === 0){
-    //       console.log("Files is null");
-    //     }
-    //     else{
-    //       console.log("Files isn't null");
-    //     }
-
-    //     files.forEach(file => {
-    //       console.log(file.name);
-    //     })
-
-    //     const keys = await AsyncStorage.getAllKeys();
-    //     console.log("Here are all the keys: " + keys);
-        
-    //     console.log(`${GlobalState.uid}`);
-    //     const asyncData = await AsyncStorage.getItem(`${GlobalState.uid}`);
-    //     console.log("Async Data " + asyncData);
-    //     if(asyncData != null){
-    //       const userData = JSON.parse(asyncData);
-    //       console.log("This is the async data " + userData);
-    //       setImageData(userData);
-    //     }
-    //     else{
-          
-    //     }
-       
-   
-    //   }
-    //   populateImages();
-    // }, []);
-
-
+  // Fetching the image data from local storage only when empty.
     useEffect(() => {
       
       const setImages = async () => {
@@ -575,11 +523,14 @@ const styles = StyleSheet.create({
   const [cameraReady, setCameraReady] = useState(false);
   
 
+  // Resuming the camera after the app starts.
   useEffect(() => {
     
     const retryResume = () => {
+
       console.log("This is the cameraReady State: " + cameraReady + " This is camera Ref state " + cameraRef.current);
       console.log("This is if focused " + isFocused);
+
       if (cameraReady && cameraRef.current && isFocused) {
         try {
           cameraRef.current.resumeRecording();
@@ -614,7 +565,7 @@ const styles = StyleSheet.create({
   // Used to set the focus onto the text input for weight.
   const inputRef = useRef<RNTextInput>(null);
   const noteRef = useRef<RNTextInput>(null);
-  const scrollViewRef = useRef<ScrollView>(null);
+  
   // Used to end the countdown.
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countDownRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -641,7 +592,7 @@ const styles = StyleSheet.create({
   const [newUserName, setNewUserName] = useState('');
   const [hasNewName, setHasNewName] = useState(false);
 
-  // const [unit, setUnit] = useState('lb');
+  
   const [changeUnit, setChangeUnit] = useState(false);
   
   const email = useRef('');
@@ -667,30 +618,7 @@ const styles = StyleSheet.create({
 
   const [help, setHelp] = useState(false);
   
-
-
-// useEffect(() =>{ 
-//   if(firstTime && selfiePath){
-    
-//       tour.start("Retake") ;
-//       console.log("It worked!");
-    
-//   }
-// }, [selfiePath, retakeReady])   
-
-// useEffect(() =>{ 
-//   if(firstTime){
-//       tour.start("Flip Camera");  
-//   }
-// }, [fullBodyReady])  
-
-// useEffect(() =>{ 
-//   if(firstTime && journalReady && !keyboardShow && fullbodyPath && selfiePath){ 
-//       tour.start("Journal");  
-//   }
-// }, [journalReady, keyboardShow])   
    
- 
    
     const capturePhoto1 = async () =>{
       setShowAccount(false);
@@ -710,7 +638,7 @@ const styles = StyleSheet.create({
 
       setSelfiePath(photo.path);
 
-      getFileSize(photo.path);
+      // getFileSize(photo.path);
       
     }
     const capturePhoto2 = async () =>{
@@ -762,7 +690,7 @@ const styles = StyleSheet.create({
         const photo: PhotoFile = await cameraRef.current.takePhoto();
         setFullbodyPath(photo.path);
 
-        getFileSize(photo.path);
+        // getFileSize(photo.path);
         setSnap(false)
 
     }
@@ -809,27 +737,27 @@ const styles = StyleSheet.create({
     }, [hasNewName])
 
     useEffect(() => {
-      const getUnit = async () => {
-        try{
-          const dbCollection = collection(firestore, 'Users'); 
-          const docRef = doc(dbCollection, GlobalState.uid);
-          const docSnap = await getDoc(docRef); 
+      if(unit == null){
+        const getUnit = async () => {
+          try{
+            const dbCollection = collection(firestore, 'Users'); 
+            const docRef = doc(dbCollection, GlobalState.uid);
+            const docSnap = await getDoc(docRef); 
 
-         if(docSnap.exists()){
-          const user = docSnap.data() as UserDataTypes;
-          setUnit(user?.unit === null ? 'lb': user?.unit)
-          
-         }
-
-         
+          if(docSnap.exists()){
+            const user = docSnap.data() as UserDataTypes;
+            setUnit(user?.unit === null ? 'lb': user?.unit)
+            
+          }
+        }
+        catch(error){
+          console.log("Error: " + error);
+        }
       }
-      catch(error){
-        console.log("Error: " + error);
-      }
-    }
 
-      getUnit()
-    }, [])
+        getUnit()
+  }
+    }, []);
 
   
     
@@ -848,56 +776,53 @@ const styles = StyleSheet.create({
     }
 
     
-
-    const listSizes = async (initialPath: string) => {
+    // const listSizes = async (initialPath: string) => {
       
-      let sizes:any = [];
+    //   let sizes:any = [];
 
-      const cd = async (path: string) => {
-        const items = await RNFS.readDir(path);
-        for(const item of items){
-          if(item.isFile()){
-            const mb = Math.floor(item.size / (1024 * 1024));
-            sizes = [...sizes, mb];
-          }
-          else if(item.isDirectory()){
-            await cd(item.path)
-          }
-        }
-     }
+    //   const cd = async (path: string) => {
+    //     const items = await RNFS.readDir(path);
+    //     for(const item of items){
+    //       if(item.isFile()){
+    //         const mb = Math.floor(item.size / (1024 * 1024));
+    //         sizes = [...sizes, mb];
+    //       }
+    //       else if(item.isDirectory()){
+    //         await cd(item.path)
+    //       }
+    //     }
+    //  }
 
-     await cd(initialPath);
-     return sizes;
+    //  await cd(initialPath);
+    //  return sizes;
 
-    }
+    // }
 
+    // useEffect(() => {
+    //   const callDirs = async () => {
+    //     const sizes = await listSizes(userDir)
+    //     console.log("Sizes" + sizes);
+    //     console.log(sizes.length);
+    //   }
 
-
-    useEffect(() => {
-      const callDirs = async () => {
-        const sizes = await listSizes(userDir)
-        console.log("Sizes" + sizes);
-        console.log(sizes.length);
-      }
-
-      const getFileSizes = async () => {
-        try{
-          const objStat = await RNFS.stat(objPath);
-          const itemStat = await RNFS.stat(changedDataPath);
-          console.log("ObjPath size: " + objStat.size);
-          console.log("changedData size: " + itemStat.size);
-        }
-        catch(error){
-          console.log("Error: " + error)
-        } 
-      }
+    //   const getFileSizes = async () => {
+    //     try{
+    //       const objStat = await RNFS.stat(objPath);
+    //       const itemStat = await RNFS.stat(changedDataPath);
+    //       console.log("ObjPath size: " + objStat.size);
+    //       console.log("changedData size: " + itemStat.size);
+    //     }
+    //     catch(error){
+    //       console.log("Error: " + error)
+    //     } 
+    //   }
 
 
-      // callDirs();
-      getFileSizes();
+    //   // callDirs();
+    //   getFileSizes();
 
       
-    }, [])
+    // }, [])
 
 
     const storeData = async () =>{
@@ -911,11 +836,14 @@ const styles = StyleSheet.create({
       // console.log("selfie path " + selfiePath);
       // console.log("full body path " + fullbodyPath);
 
+      // Getting the file names at the end of the path
       const selfieName = selfiePath?.split("/").pop();
       const fullBodyName = fullbodyPath?.split("/").pop();
 
       console.log("Selfie Path: " + selfiePath + " Full Body Path: " + fullbodyPath);
 
+      // Setting the current image object so user doesn't have to wait for upload.
+      // This will be replaced with the URL when upload is done.
       const fastImgObj: imageDataType = {selfie: selfiePath, fullBody: fullbodyPath, weight: weight, date: formattedDate, notes: notes, selfieName: selfieName, fullBodyName: fullBodyName}
       let currData: imageDataType[] = imageData!;
       let newImageData: imageDataType[] = [];
@@ -952,15 +880,14 @@ const styles = StyleSheet.create({
  
       console.log("image data before retrieval " + newImageData);
 
-      const selfieReference = storage().ref(`images/${GlobalState.uid}/${formattedDate}/selfie/${selfiePath}`);
-      const fullBodyReference = storage().ref(`images/${GlobalState.uid}/${formattedDate}/fullbody/${fullbodyPath}`);
+      // Uploading to Firebase Storage
+      const selfieReference = storage().ref(`images/${GlobalState.uid}/${formattedDate}/selfie/${selfieName}`);
+      const fullBodyReference = storage().ref(`images/${GlobalState.uid}/${formattedDate}/fullbody/${fullBodyName}`);
 
       await selfieReference.putFile(selfiePath ?? ''); 
       await fullBodyReference.putFile(fullbodyPath ?? ''); 
       // await fullBodyReference.putFile(fullbodyPath || ''); 
       
-      // const selfieURL = await selfieReference.getDownloadURL();
-      // const fullBodyURL = await fullBodyReference.getDownloadURL();
       const selfieURL = await selfieReference.getDownloadURL();
       const fullBodyURL = await fullBodyReference.getDownloadURL();
 
@@ -968,26 +895,10 @@ const styles = StyleSheet.create({
 
       const imgObj: imageDataType = {selfie: selfieURL, fullBody: fullBodyURL, weight: weight, date: formattedDate, notes: notes, selfieName: selfieName, fullBodyName: fullBodyName}
      
-      // try{
-      //   const dbCollection = collection(firestore, 'Users'); 
-      //   const docRef = doc(dbCollection, GlobalState.uid); 
-      //   const docSnap = await getDoc(docRef); 
- 
-      //    // Checking if user exists
-      //    if(docSnap.exists()){
-      //     const user = docSnap.data();
-      //     newImageData = [...user?.photos, imgObj];
-      //    }
-      //    else{
-      //     console.log("User not found!");
-      //    }
-      //  }
-      //  catch(error){
-      //    console.log("Couldn't fetch user data" + error)
-      //  }
 
       newImageData = [...currData!, imgObj];
 
+      // Uploading to Firestore database with the new URLs
       try{
         const dbCollection = collection(firestore, 'Users');
         const docRef = doc(dbCollection, GlobalState.uid);
@@ -999,25 +910,24 @@ const styles = StyleSheet.create({
       console.log("Reaching RNFS")
 
     // Storing in RNFS
-
     let exists = await RNFS.exists(userDir);
     if(!exists){
       await RNFS.mkdir(userDir);
     }
 
   
-    let urlLinks = [];
-    try{
-    const urlData = await RNFS.readFile(urlPath);
-    urlLinks = JSON.parse(urlData);
-    }
-    catch(error){
-      console.log("Error with the urls: " + error);
-    }
+    // let urlLinks = [];
+    // try{
+    //   const urlData = await RNFS.readFile(urlPath);
+    //   urlLinks = JSON.parse(urlData);
+    // }
+    // catch(error){
+    //   console.log("Error with the urls: " + error);
+    // }
 
-    const links = [selfieURL, fullBodyURL];
+    // const links = [selfieURL, fullBodyURL];
 
-    urlLinks = [...urlLinks, links];
+    // urlLinks = [...urlLinks, links];
 
     try{
       //Getting the file names at the end of the path
@@ -1064,8 +974,6 @@ const styles = StyleSheet.create({
         console.log("This is the localStorage " + item.name + " " + item.path);
       });
 
-    //  console.log("This is the local storage data " + localStorageData[0].name + " " + localStorageData[0].path);
-
       // Getting the selfie path.
       const selfieData = localStorageData.filter(item =>
           item.name === selfieName
@@ -1075,11 +983,6 @@ const styles = StyleSheet.create({
           item.name === fullBodyName
       );
 
-      // console.log("This is the selfieData length " + selfieData.length);
-      // console.log("This is the fullbody length " + fullBodyData.length);
-
-      // console.log("Here is the selfieDataPath " + selfieData[0].path);
-      // console.log("Here is the fullBodyDataPath " + fullBodyData[0].path);
 
       const asyncImgObj:imageDataType = {selfie: selfieData[0].path, fullBody: fullBodyData[0].path, weight: weight, date: formattedDate, notes: notes, selfieName: selfieName, fullBodyName: fullBodyName}
       newImageData = [...imageData!, asyncImgObj];
@@ -1133,18 +1036,18 @@ const styles = StyleSheet.create({
       })
     }
 
-    const getFileSize = async (path: string) =>{
-      try{
-        const stat1 = await RNFS.stat(path);
-        const sizeInBytes1 = stat1.size;
+    // const getFileSize = async (path: string) =>{
+    //   try{
+    //     const stat1 = await RNFS.stat(path);
+    //     const sizeInBytes1 = stat1.size;
 
-        console.log("This is the image size: " + sizeInBytes1);
+    //     console.log("This is the image size: " + sizeInBytes1);
       
-      }
-      catch (error){
-        console.log("Error: " + error);
-      }
-    }
+    //   }
+    //   catch (error){
+    //     console.log("Error: " + error);
+    //   }
+    // }
 
     useEffect(() => {
       if(email.current.length == 0){
@@ -1158,6 +1061,7 @@ const styles = StyleSheet.create({
                 const user = docSnap.data() as UserDataTypes;
                 const userEmail = user?.email;  
                 email.current = userEmail;
+                GlobalState.email = userEmail;
                 console.log("Email was given " + email.current)
               }
 
@@ -1176,7 +1080,7 @@ const styles = StyleSheet.create({
 
     const handleResetPassword = async () => {
       try{
-        await sendPasswordResetEmail(auth, email.current);
+        await sendPasswordResetEmail(auth, GlobalState.email);
         Alert.alert("Reset password email sent!");
       }
       catch(error){
@@ -1278,7 +1182,7 @@ const styles = StyleSheet.create({
     }
     }
 
-
+    // Reauthenticating the user before deleting account.
     const reauthenticate = async (): Promise<boolean> => {
       
        if(password){
@@ -1287,7 +1191,6 @@ const styles = StyleSheet.create({
             await reauthenticateWithCredential(auth.currentUser!, credentials)
             console.log("User reauthenticated");
             return true;
-            
           }
           catch (error){
             console.log('Error: ' + error);
@@ -1363,9 +1266,7 @@ const styles = StyleSheet.create({
   
     return (
     <View style={{flex: 1}} onLayout={() => {
-      // if(firstTime){
-      //   tour.start();
-      // }
+      
     }}>
        {(!device || !hasPermission) && 
        <View style={{alignItems: 'center', justifyContent: 'center'}}>

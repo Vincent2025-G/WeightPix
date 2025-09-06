@@ -135,24 +135,14 @@ import {isTablet} from 'react-native-device-info';
     const {checkLocal} = useCheckSubscriptionInfo();
 
     
+    
     interface UserDataTypes{
         expirationDate: Timestamp,
         completedOnboard: boolean,
         photos: imageDataType[]
     }
 
-    // navigation.navigate("Payment");
-    // useEffect(() => {
-    //     setImageData([]);
-        
-    //     const setName = async () => {
-    //         const name = await DeviceInfo.getDeviceId();
-    //         setDeviceName(name);
-    //     }
-
-    //     setName();
-    // }, [])
-
+    // Clearing all of the user credentials and resetting the cache for the images.
     useEffect(() => {
         const clear = () => {
             console.log("Login page imageData " + imageData)
@@ -184,18 +174,20 @@ import {isTablet} from 'react-native-device-info';
             const userCredentials = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredentials.user;
 
-            // if(!user.emailVerified){
+            // if(!user.emailVerified){ 
             //                 console.log("User hasn't verified their email!");   
             //                 Alert.alert("Alert", "Please verify your email to login!", [{text: "Cancel", style: "cancel"}, {text: "Verify", style: "default", onPress: () => {
-            //                      sendEmailVerification(user).then(() => {
+            //                      sendEmailVerification(user).then(async () => {
             //                 Alert.alert("Email verfication sent!");
-            //                 }).catch(error => {
+            //                 await signOut(auth);
+            //                 }).catch(async (error) => {
             //                     console.log("Error with verification: " + error);
             //                     Alert.alert("Error", "There was a verification error. Please try again!", [{text: "Cancel", style: 'cancel'}, {text: "Retry", style: "default", onPress: () => sendEmailVerification(user)}]);
+            //                     await signOut(auth);
             //                 });
             //                 }}]);
-            //                 await signOut(auth);
-            //                 // return;
+                            
+            //                 return;
 
             // }
                 let photoLength = 0;
@@ -206,12 +198,14 @@ import {isTablet} from 'react-native-device-info';
                       const docSnapShot = await getDoc(docRef); 
             
                       if(docSnapShot.exists()){
+
                         const user = docSnapShot.data() as UserDataTypes;
                         console.log(user?.completedOnboard + " onboard?")
                         photoLength = user?.photos.length;
+
+                        // Checking if the user has completed onboard and if not navigate to onboard1.
                         if(user?.completedOnboard === true){
-                          console.log(" Yes completed onboard is: " + user?.completedOnboard);
-                          
+                            console.log(" Yes completed onboard is: " + user?.completedOnboard); 
                         }
                         else{
                              navigation.navigate("Onboard1");
@@ -225,7 +219,7 @@ import {isTablet} from 'react-native-device-info';
                     }
 
               
-
+            // Setting user credentials in global state for easy access throughout the app.
             GlobalState.uid = user.uid;
             GlobalState.dataLength = photoLength
             const userDir = `${RNFS.DocumentDirectoryPath}/${user.uid}`;
@@ -235,7 +229,6 @@ import {isTablet} from 'react-native-device-info';
            
             checkLocal(subInfoPath, photoLength);
 
-            // navigation.navigate('Home');
         }
         catch(error){
             Alert.alert('Error', 'Invalid credentials!');

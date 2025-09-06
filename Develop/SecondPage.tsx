@@ -369,7 +369,7 @@ export const SecondPage = ({navigation, route}: Prop): React.JSX.Element => {
  
   const imageRoute = route.params ?? {};
 
-  const {imageData, setImageData, allowedAccess, setAllowedAccess, setUnit, unit, validSubscription} = useContext(UserData);
+  const {imageData, setImageData, allowedAccess, setAllowedAccess, setUnit, unit, validSubscription, setValidSubscription} = useContext(UserData);
   // console.log("This is the device name: " + deviceName);
   const [localHasData, setlocalHasData] = useState<boolean | null>(null);
   const checkedDatabase = useRef(false);
@@ -393,7 +393,8 @@ export const SecondPage = ({navigation, route}: Prop): React.JSX.Element => {
 // Checking the subscription status every time the page loads.  
 useEffect(() => {
   const checkSubscription = async () => {
-    checkLocal(subInfoPath, imageData?.length ?? 0);
+    const valid = await checkLocal(subInfoPath, imageData?.length ?? 0);
+    setValidSubscription(valid);
   }
 
   checkSubscription();
@@ -604,8 +605,6 @@ useEffect(() => {
       const objData = await RNFS.readFile(objPath, 'utf8');
       let localStorageData = JSON.parse(objData);
       localStorageData = [...localStorageData, newObj];
-      setImageData(localStorageData);
-      setFiltered(localStorageData);
 
       await RNFS.writeFile(objPath, localStorageData, 'utf8');
       console.log("This is the local storage data " + localStorageData)

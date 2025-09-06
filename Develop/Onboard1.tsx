@@ -3,6 +3,7 @@ import { RootStackParamList } from './StackList';
 import { GlobalState } from './GlobalState';
 import {collection, doc, getDoc, Timestamp} from '@react-native-firebase/firestore'
 import { auth, firestore } from './Firebase.ts';
+
 import {
     ScrollView,
     StatusBar,
@@ -28,7 +29,6 @@ import {
   
   } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import {isTablet} from 'react-native-device-info';
   
   const styles = StyleSheet.create({
@@ -100,9 +100,7 @@ import {isTablet} from 'react-native-device-info';
             fontSize: !isTablet() ? 30 : 50,
             fontWeight: 700,
             color: "white",
-            // textShadowColor: "#00ffff",
-            // textShadowRadius: 3,
-            // textShadowOffset: {width: 0, height: 0},
+           
     }
     }
   )
@@ -111,15 +109,14 @@ import {isTablet} from 'react-native-device-info';
 
   export const Onboard1 = ({navigation}: Props): React.JSX.Element=> {
 
-    // navigation.navigate('Payment')
-
     const [reasons, setReasons] = useState('');
     const [keyboardShow, setKeyboardShow] = useState(false);
 
     const inputRef = useRef<RNTextInput>(null)
     
-    
 
+    // Checking if the user gave their reasoning and if so they will be navigated to onboard2
+    // and their reasons will be stored in firestore.
     const storeData = async () => {
       if(reasons.length !== 0){
         try{

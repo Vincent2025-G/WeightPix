@@ -11,40 +11,23 @@ import {
   getAvailablePurchases
 } from "react-native-iap";
 import * as RNFS from '@dr.pogodin/react-native-fs';
-import {firestore} from './Firebase'
-import {collection, doc, getDoc, updateDoc} from '@react-native-firebase/firestore'
 import {useCheckSubscriptionInfo} from './subscriptionCheck'
     import {
-        ScrollView,
-        StatusBar,
         StyleSheet,
         Text,
-        TextInput, 
-        TextInput as RNTextInput,
-        useColorScheme,
         View, 
-        FlatList, 
-        SectionList,
-        Image, 
-        ImageBackground,
-        TouchableWithoutFeedback,
-        Keyboard,
         TouchableOpacity,
-        InteractionManager,
-        Animated,
-        DevSettings,
         Alert,
         
         Platform, 
-        ActivityIndicator
       } from 'react-native';
 
-import { createNativeStackNavigator, NativeStackScreenProps} from '@react-navigation/native-stack';
+import { NativeStackScreenProps} from '@react-navigation/native-stack';
 import { RootStackParamList } from './StackList';
 import { GlobalState } from './GlobalState';
 import { UserData } from './UserData';
 import {isTablet} from 'react-native-device-info';
-// import {initConnection, getSubscriptions} from 'react-native-iap'
+
 
 const styles = StyleSheet.create({
   subscriptionCard:{
@@ -134,6 +117,7 @@ export const Payment = ({navigation}: Prop) => {
 
     
   useEffect(() => { 
+
       // Gets all of the subscriptions for the app!
   const handleGetSubscriptions = async () => {
     if(!connected) return;
@@ -154,6 +138,7 @@ export const Payment = ({navigation}: Prop) => {
     
     handleGetSubscriptions();
   }, [connected]);
+
 
   useEffect(() => {
     if(!connected) return;
@@ -215,12 +200,13 @@ export const Payment = ({navigation}: Prop) => {
     }
   }
 
+  // Restores the users purchase if they have already purchased a subscription.
   const handleRestorePurchase = async () => {
     try{
          await restorePurchases();
          const receiptInfo = await getReceiptIOS({forceRefresh: true});
          if(receiptInfo){
-            validate(receiptInfo, subInfoPath, "Home", imageData?.length ?? 0);
+            validate(receiptInfo, subInfoPath, "Home", GlobalState.dataLength ?? 0);
          }
     }
     catch(error){
@@ -229,15 +215,11 @@ export const Payment = ({navigation}: Prop) => {
     }
   }
    
-      
+
+  // Main function called after the subscription is purchased.
   useEffect(() => { 
 
     const checkPurchase = async (purchase: Purchase | undefined) => {
-    //  const availablePurchases = await getAvailablePurchases();
-    //  if(availablePurchases.length > 0){
-    //     console.log("Already purchased: " + availablePurchases);
-    //     return;
-    //  }
 
      console.log("Purchase: " + purchase);
         if(purchase){          
@@ -248,13 +230,6 @@ export const Payment = ({navigation}: Prop) => {
                         const isTestEnv = __DEV__;  
                         console.log("This is the currentPurchase error: " + purchaseUpdatedListener)
                         await validate(receipt, subInfoPath, "Home", imageData?.length ?? 0);
-
-                        // if(result == false){
-                        //     console.log("The result is false!");
-                        //     const subscriptions =  subscriptionSkus as string[];
-
-                        //     await requestSubscription({sku: subscriptions![0]});
-                        // }
 
                         return; 
                     }  
