@@ -4,7 +4,7 @@ import { NavigationContainer, createStaticNavigation } from '@react-navigation/n
 import { createNativeStackNavigator, NativeStackScreenProps} from '@react-navigation/native-stack';
 import { RootStackParamList } from './StackList';
 import {Camera, useCameraDevice, useCameraFormat,  useCameraPermission, CameraPermissionStatus, PhotoFile} from 'react-native-vision-camera';
-import {format} from 'date-fns';
+import {format, parse} from 'date-fns';
 import { imageDataType } from './StackList';
 import ScreenBrightness from 'react-native-screen-brightness';
 import { GlobalState } from './GlobalState';
@@ -18,6 +18,7 @@ import * as RNFS from '@dr.pogodin/react-native-fs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserData } from './UserData';
 import { sendPasswordResetEmail, signOut } from '@react-native-firebase/auth';
+import {useNetInfo} from '@react-native-community/netinfo'
 
 import {
   ScrollView,
@@ -438,7 +439,7 @@ const styles = StyleSheet.create({
   
 
   const objPath = `${userDir}/images.json`;
-  const urlPath = `${userDir}/urls.json`;
+  const tempPath = `${userDir}/temp`;
   const changedDataPath = `${userDir}/changeddata.json`;
   const subInfoPath = `${userDir}/subInfo`;
 
@@ -824,6 +825,7 @@ const styles = StyleSheet.create({
       
     // }, [])
 
+    const {isConnected} = useNetInfo()
 
     const storeData = async () =>{
       if(weight.length < 2){
@@ -844,7 +846,32 @@ const styles = StyleSheet.create({
 
       // Setting the current image object so user doesn't have to wait for upload.
       // This will be replaced with the URL when upload is done.
-      const fastImgObj: imageDataType = {selfie: selfiePath, fullBody: fullbodyPath, weight: weight, date: formattedDate, notes: notes, selfieName: selfieName, fullBodyName: fullBodyName}
+      const fastImgObj: imageDataType = {selfie: selfiePath, fullBody: fullbodyPath, weight: weight, date: formattedDate, notes: notes, selfieName: selfieName, fullBodyName: fullBodyName};
+
+      // Making sure RNFS directory exists.
+      let exists = await RNFS.exists(userDir);
+      if(!exists){
+        await RNFS.mkdir(userDir);
+      }
+
+      // If there is no connection then store in the tempPath
+      // if(!isConnected){
+      //   console.log("No connection so store offline!");
+      //   const exists = await RNFS.exists(tempPath);
+
+      //   if(!exists){
+      //     await RNFS.writeFile(tempPath, JSON.stringify([fastImgObj]), 'utf8');
+      //   }
+      //   else{
+      //     const storedData = await RNFS.readFile(tempPath);
+      //     let parsedData = JSON.parse(storedData);
+
+      //     parsedData = [...parsedData, fastImgObj];
+      //     await RNFS.writeFile(tempPath, JSON.stringify(parsedData), 'utf8');
+      //   }
+      // }
+
+
       let currData: imageDataType[] = imageData!;
       let newImageData: imageDataType[] = [];
       
@@ -886,7 +913,7 @@ const styles = StyleSheet.create({
 
       await selfieReference.putFile(selfiePath ?? ''); 
       await fullBodyReference.putFile(fullbodyPath ?? ''); 
-      // await fullBodyReference.putFile(fullbodyPath || ''); 
+
       
       const selfieURL = await selfieReference.getDownloadURL();
       const fullBodyURL = await fullBodyReference.getDownloadURL();
@@ -909,11 +936,7 @@ const styles = StyleSheet.create({
       }
       console.log("Reaching RNFS")
 
-    // Storing in RNFS
-    let exists = await RNFS.exists(userDir);
-    if(!exists){
-      await RNFS.mkdir(userDir);
-    }
+    
 
   
     // let urlLinks = [];
@@ -1265,7 +1288,7 @@ const styles = StyleSheet.create({
     }
   
     return (
-    <View style={{flex: 1}} onLayout={() => {
+    isConnected ? <View style={{flex: 1}} onLayout={() => {
       
     }}>
        {(!device || !hasPermission) && 
@@ -1729,7 +1752,9 @@ const styles = StyleSheet.create({
         
     </View>
   }
+  </View> :
+   <View style={{alignItems: 'center', justifyContent: 'center', backgroundColor: '#359EA0', flex: 1, }}>
+    <Text style={{fontSize: 20, color: 'white'}}>Please connect to a network to use page!</Text>
   </View>
-  )
+  ) 
   }
-

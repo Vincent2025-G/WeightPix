@@ -34,6 +34,7 @@ import {
   import { GlobalState } from './GlobalState.ts';
 import { set } from 'date-fns';
 import DeviceInfo, { getDevice } from 'react-native-device-info';
+import {useNetInfo} from '@react-native-community/netinfo'
 // import { stat } from 'fs';
 
   const styles = StyleSheet.create({
@@ -105,6 +106,7 @@ import DeviceInfo, { getDevice } from 'react-native-device-info';
     const [confirmPassword, setConfirmPassword] = useState('');
     const [username, setUserName] = useState(''); 
     const [deviceID, setDeviceID] = useState('');
+    const {isConnected} = useNetInfo();
 
     useEffect(() => {
        const getDeviceInfo = async () => {
@@ -173,40 +175,45 @@ import DeviceInfo, { getDevice } from 'react-native-device-info';
 
     // Validates the password and other credentials before creating the user.
     const handleSignUp = async () => {
-        const status = await validatePassword(auth, password);
+        if(isConnected){
+            const status = await validatePassword(auth, password);
 
-         if(password.length < 6){
-            Alert.alert("Error", "Password too short! Must be at least 6 characters!");
-            return;
-        }
-        else if(!status.isValid){
-            if(!status.containsLowercaseLetter){
-                Alert.alert("Error", "Password must contain a lowercase letter!");
+            if(password.length < 6){
+                Alert.alert("Error", "Password too short! Must be at least 6 characters!");
                 return;
             }
-            if(!status.containsUppercaseLetter){
-                Alert.alert("Error", "Password must contain an uppercase letter!");
+            else if(!status.isValid){
+                if(!status.containsLowercaseLetter){
+                    Alert.alert("Error", "Password must contain a lowercase letter!");
+                    return;
+                }
+                if(!status.containsUppercaseLetter){
+                    Alert.alert("Error", "Password must contain an uppercase letter!");
+                    return;
+                }
+                if(!status.containsNumericCharacter){
+                    Alert.alert("Error", "Password must contain a number!");
+                    return;
+                }
+                if(!status.containsNonAlphanumericCharacter){
+                    Alert.alert("Error", "Password must contain a non-alphanumeric character!");
+                    return;
+                }
+            }
+            else if(password !== confirmPassword){
+                Alert.alert("Error", "Passwords do not match!");
                 return;
             }
-            if(!status.containsNumericCharacter){
-                Alert.alert("Error", "Password must contain a number!");
+            else if(username.length === 0){
+                Alert.alert("Error", "Please enter a Username");
                 return;
             }
-            if(!status.containsNonAlphanumericCharacter){
-                Alert.alert("Error", "Password must contain a non-alphanumeric character!");
-                return;
-            }
-        }
-        else if(password !== confirmPassword){
-            Alert.alert("Error", "Passwords do not match!");
-            return;
-        }
-        else if(username.length === 0){
-            Alert.alert("Error", "Please enter a Username");
-            return;
-        }
 
-        await createUser();
+            await createUser();
+         }
+         else{
+            Alert.alert("Please connect to a network to sign up!");
+         }
     }
 
 

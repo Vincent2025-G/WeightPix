@@ -37,6 +37,7 @@ import * as RNFS from '@dr.pogodin/react-native-fs';
 import {useCheckSubscriptionInfo} from './subscriptionCheck';
 import { imageDataType } from './StackList';
 import {isTablet} from 'react-native-device-info';
+import {useNetInfo} from '@react-native-community/netinfo'
 
   
 
@@ -133,6 +134,7 @@ import {isTablet} from 'react-native-device-info';
     // const{connected, purchaseHistory, getPurchaseHistory} = useIAP();
     // const subscriptionSkus = Platform.select({ios: ['wj.test1']}); 
     const {checkLocal} = useCheckSubscriptionInfo();
+    const {isConnected} = useNetInfo();
 
     
     
@@ -170,73 +172,76 @@ import {isTablet} from 'react-native-device-info';
     }
 
     const handleLogin = async () =>{
-        try{
-            const userCredentials = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredentials.user;
+        if(isConnected){
+            try{
+                const userCredentials = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredentials.user;
 
-            // if(!user.emailVerified){ 
-            //                 console.log("User hasn't verified their email!");   
-            //                 Alert.alert("Alert", "Please verify your email to login!", [{text: "Cancel", style: "cancel"}, {text: "Verify", style: "default", onPress: () => {
-            //                      sendEmailVerification(user).then(async () => {
-            //                 Alert.alert("Email verfication sent!");
-            //                 await signOut(auth);
-            //                 }).catch(async (error) => {
-            //                     console.log("Error with verification: " + error);
-            //                     Alert.alert("Error", "There was a verification error. Please try again!", [{text: "Cancel", style: 'cancel'}, {text: "Retry", style: "default", onPress: () => sendEmailVerification(user)}]);
-            //                     await signOut(auth);
-            //                 });
-            //                 }}]);
-                            
-            //                 return;
+                // if(!user.emailVerified){ 
+                //                 console.log("User hasn't verified their email!");   
+                //                 Alert.alert("Alert", "Please verify your email to login!", [{text: "Cancel", style: "cancel"}, {text: "Verify", style: "default", onPress: () => {
+                //                      sendEmailVerification(user).then(async () => {
+                //                 Alert.alert("Email verfication sent!");
+                //                 await signOut(auth);
+                //                 }).catch(async (error) => {
+                //                     console.log("Error with verification: " + error);
+                //                     Alert.alert("Error", "There was a verification error. Please try again!", [{text: "Cancel", style: 'cancel'}, {text: "Retry", style: "default", onPress: () => sendEmailVerification(user)}]);
+                //                     await signOut(auth);
+                //                 });
+                //                 }}]);
+                                
+                //                 return;
 
-            // }
-                let photoLength = 0;
+                // }
+                    let photoLength = 0;
 
-                try{
-                      const dbCollection = collection(firestore, 'Users'); 
-                      const docRef = doc(dbCollection, GlobalState.uid);
-                      const docSnapShot = await getDoc(docRef); 
+                    try{
+                        const dbCollection = collection(firestore, 'Users'); 
+                        const docRef = doc(dbCollection, GlobalState.uid);
+                        const docSnapShot = await getDoc(docRef); 
+                
+                        if(docSnapShot.exists()){
+
+                            const user = docSnapShot.data() as UserDataTypes;
+                            console.log(user?.completedOnboard + " onboard?")
+                            photoLength = user?.photos.length;
+
+                            // Checking if the user has completed onboard and if not navigate to onboard1.
+                            if(user?.completedOnboard === true){
+                                console.log(" Yes completed onboard is: " + user?.completedOnboard); 
+                            }
+                            else{
+                                navigation.navigate("Onboard1");
+                                console.log("Haven't completed onbaord");
+                                return;
+                            }
+                        }
+                        }
+                        catch(error){
+                            console.log("Error fetching onboard status: " + error);
+                        }
+
+                
+                // Setting user credentials in global state for easy access throughout the app.
+                GlobalState.uid = user.uid;
+                GlobalState.dataLength = photoLength
+                const userDir = `${RNFS.DocumentDirectoryPath}/${user.uid}`;
+                const subInfoPath = `${userDir}/subInfo`;
+                console.log("subInfoPath: " + subInfoPath);
+                console.log("Photo length: " + photoLength);
             
-                      if(docSnapShot.exists()){
+                await checkLocal(subInfoPath, photoLength);
 
-                        const user = docSnapShot.data() as UserDataTypes;
-                        console.log(user?.completedOnboard + " onboard?")
-                        photoLength = user?.photos.length;
-
-                        // Checking if the user has completed onboard and if not navigate to onboard1.
-                        if(user?.completedOnboard === true){
-                            console.log(" Yes completed onboard is: " + user?.completedOnboard); 
-                        }
-                        else{
-                             navigation.navigate("Onboard1");
-                             console.log("Haven't completed onbaord");
-                             return;
-                        }
-                      }
-                    }
-                    catch(error){
-                        console.log("Error fetching onboard status: " + error);
-                    }
-
-              
-            // Setting user credentials in global state for easy access throughout the app.
-            GlobalState.uid = user.uid;
-            GlobalState.dataLength = photoLength
-            const userDir = `${RNFS.DocumentDirectoryPath}/${user.uid}`;
-            const subInfoPath = `${userDir}/subInfo`;
-            console.log("subInfoPath: " + subInfoPath);
-            console.log("Photo length: " + photoLength);
-           
-            checkLocal(subInfoPath, photoLength);
-
+            }
+            catch(error){
+                Alert.alert('Error', 'Invalid credentials!');
+            }  
+        } 
+        else{
+            Alert.alert("Please connect to a network to login!");
         }
-        catch(error){
-            Alert.alert('Error', 'Invalid credentials!');
-        }   
     }
 
-    
-    
 
     return(
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

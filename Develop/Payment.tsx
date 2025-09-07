@@ -191,8 +191,8 @@ export const Payment = ({navigation}: Prop) => {
     try {
         console.log("Request subscription entered!");
         await requestSubscription({sku: productId});
-        setTriedToSubscribe(true);
-        // setLoading(false);
+        // setTriedToSubscribe(true);
+        
     }
     catch (error){
         // setLoading(false);
@@ -247,11 +247,11 @@ export const Payment = ({navigation}: Prop) => {
         }
     }  
 
-        console.log("Tried to subscribe: " + triedToSubscribe);
-        if(triedToSubscribe){
+        // console.log("Tried to subscribe: " + triedToSubscribe);
+        // if(triedToSubscribe){
             checkPurchase(currentPurchase);
-        }
-  }, [currentPurchase, finishTransaction, triedToSubscribe]);  
+        // }
+  }, [currentPurchase, finishTransaction]);  
   
 
     return(

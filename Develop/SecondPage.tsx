@@ -4,14 +4,14 @@ import { NavigationContainer, createStaticNavigation, RouteProp } from '@react-n
 import { createNativeStackNavigator, NativeStackScreenProps} from '@react-navigation/native-stack';
 import { RootStackParamList } from './StackList';
 import { imageDataType } from './StackList';
-import {firestore} from './Firebase'
-import {collection, doc, getDoc, Timestamp, updateDoc} from '@react-native-firebase/firestore'
+import {firestore, storage} from './Firebase'
+import {collection, doc, getDoc, Timestamp, updateDoc, arrayUnion} from '@react-native-firebase/firestore'
 // import firebase from "@react-native-firebase/app";
 import { GlobalState } from './GlobalState';
 import { UserData } from './UserData';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import  PushNotificationIOS  from '@react-native-community/push-notification-ios';
-import {format} from 'date-fns'
+import {format, parse} from 'date-fns'
 import * as RNFS from '@dr.pogodin/react-native-fs';
 // import Toast from 'react-native-toast-message';
 import FastImage from 'react-native-fast-image'
@@ -19,6 +19,7 @@ import {Gesture, GestureDetector, State} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, withSpring, runOnJS, withTiming, ColorSpace} from 'react-native-reanimated'
 import {useCheckSubscriptionInfo} from './subscriptionCheck';
 import {isTablet} from 'react-native-device-info';
+import {useNetInfo} from '@react-native-community/netinfo'
 
 import {
  ScrollView,
@@ -45,6 +46,7 @@ import {
 ViewToken
 
 } from 'react-native';
+import { parseBoxShadowString } from 'react-native-reanimated/lib/typescript/common';
 
 // import { PinchGesture } from 'react-native-gesture-handler/lib/typescript/handlers/gestures/pinchGesture';
 
@@ -377,13 +379,14 @@ export const SecondPage = ({navigation, route}: Prop): React.JSX.Element => {
   const userDir = `${RNFS.DocumentDirectoryPath}/${GlobalState.uid}`;
   const subInfoPath = `${userDir}/subInfo`;
   const objPath = `${userDir}/images.json`;
-  const urlPath = `${userDir}/urls.json`;
+  const tempPath = `${userDir}/temp`;
   const changedDataPath = `${userDir}/changeddata.json`;
   // const urlPath = `${userDir}/urls.json`;
   const updatedPath = RNFS.DocumentDirectoryPath.split('/')[6];
   const [alreadyHasData, setAlreadyHasData] = useState(false);
   const [storingDone, setStoringDone] = useState<boolean | null>(null);
   const [loadError, setLoadError] = useState(false);
+  const {isConnected} = useNetInfo()
   
   const {checkLocal} = useCheckSubscriptionInfo();
   
@@ -647,7 +650,6 @@ useEffect(() => {
   // Called on load as well as when storeAsyncData has finished downloading.
   useEffect(() => {
     const setImages = async () => {
-
       try{ 
 
         const exists = await RNFS.exists(userDir);
@@ -663,9 +665,20 @@ useEffect(() => {
 
         // Getting the images from the local path
         const storedImageData = await RNFS.readFile(objPath, 'utf8');
-        const storedImageObj = JSON.parse(storedImageData);
+        let storedImageObj = JSON.parse(storedImageData);
 
-        console.log("stored image obj: " + storedImageObj.length)
+        console.log("stored image obj: " + storedImageObj.length);
+
+        // Adding the temporary path if there was any pictures taken
+        // without a connection.
+         const tempPathExists = await RNFS.exists(tempPath);
+         if(tempPathExists){
+
+            const storedData = await RNFS.readFile(tempPath);
+            const parsedData = JSON.parse(storedData);
+
+            storedImageObj = [...storedImageObj, ...parsedData];
+         }
 
         if((imageData != null && exists && imageData.length > storedImageObj.length)){
           console.log("Image Data larger! " + imageData.length);
@@ -695,9 +708,9 @@ useEffect(() => {
   }, [storingDone, loadError]);
 
 
-  // Checking the difference between the database and the local storage.
+  // Checking to see if the databse is larger than local storage.
   useEffect(() =>{
-    const checkIfDifference = async () => {
+    const checkIfDatabaseLarger = async () => {
       console.log("Calling checker");
       try{
         console.log("Data Length: " + GlobalState.dataLength +  "imageData length: " + imageData!.length);
@@ -728,7 +741,7 @@ useEffect(() => {
     }
   }
 
-    checkIfDifference();
+    checkIfDatabaseLarger();
   
 }, [localHasData])
 
@@ -1646,4 +1659,3 @@ useEffect(() => {
         </TouchableWithoutFeedback>
    )
 }
-
