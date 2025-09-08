@@ -1291,14 +1291,16 @@ const styles = StyleSheet.create({
     isConnected ? <View style={{flex: 1}} onLayout={() => {
       
     }}>
-       {(!device || !hasPermission) && 
-       <View style={{alignItems: 'center', justifyContent: 'center'}}>
-        <Text style={{fontSize: 20}}>Waiting for camera permissions...</Text>
-        </View>
-       }
+      
+       {(!device || !hasPermission) &&
+       <View style={{alignItems: 'center', justifyContent: 'center', position: 'absolute', left: !isTablet() ? 25 : 100, top: '50%'}}>
+        <Text style={{fontSize: !isTablet() ? 17 : 30}}>Please turn on camera permissions in settings!</Text>
+        </View>}
+       
+        
       <Camera ref={cameraRef} onInitialized={() => setCameraReady(true)} style={StyleSheet.absoluteFill} device={device!} isActive={appState === 'active' && isFocused} photo={true} torch={(flip && snap) ? 'on' : 'off'}/>
 
-      {!brighten ? <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss(); setShowAccount(false)}}>
+     {!brighten ? <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss(); setShowAccount(false)}}>
 
           
            <View style={{flex: 1}}>
@@ -1753,7 +1755,7 @@ const styles = StyleSheet.create({
     </View>
   }
   </View> :
-   <View style={{alignItems: 'center', justifyContent: 'center', backgroundColor: '#359EA0', flex: 1, }}>
+   <View style={{alignItems: 'center', justifyContent: 'center', backgroundColor: '#359EA0', flex: 1 }}>
     <Text style={{fontSize: 20, color: 'white'}}>Please connect to a network to use page!</Text>
   </View>
   ) 

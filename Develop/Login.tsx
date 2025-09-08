@@ -71,7 +71,7 @@ import {useNetInfo} from '@react-native-community/netinfo'
         // textShadowRadius: 3,
         // textShadowOffset: {width: 0, height: 0},
         position: 'absolute',
-        left: !isTablet() ? '21%' : '38%',
+        left: !isTablet() ? '22%' : '38%',
         top: !isTablet() ? 60 : 205
     },
     titleText2: {
