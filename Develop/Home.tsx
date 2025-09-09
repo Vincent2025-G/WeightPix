@@ -48,7 +48,8 @@ import {
   NativeModules,
   AppState,
   AppStateStatus,
-  AppStateEvent
+  AppStateEvent,
+  Pressable
 } from 'react-native';
 
 import { TooltipComponent } from './CopilotTooltip.tsx';
@@ -250,6 +251,7 @@ const styles = StyleSheet.create({
       borderWidth: 1,
       borderColor: '#00ffff' 
     },
+
     flashButton:{
       height: !isTablet() ? 30 : 40, 
       width: !isTablet() ? 30 : 40, 
@@ -418,6 +420,12 @@ const styles = StyleSheet.create({
       textShadowColor: '#00ffff',
       textShadowOffset: {width: 0, height: 0}, // Defines the position of shadow (0,0 in center)
       textShadowRadius: 2, // Controls how far the shadow blurs out.
+    },
+    faqQuestion: {
+      color: 'white', fontSize: !isTablet() ? 18 : 22, paddingLeft: 10, paddingBottom: 5
+    },
+    faqAnswer: {
+      color: 'gold', fontSize: !isTablet() ? 18 : 22, paddingLeft: 10, paddingBottom: 30
     }
   });
 
@@ -618,14 +626,17 @@ const styles = StyleSheet.create({
   const [journalReady, setJournalReady] = useState(false);
 
   const [help, setHelp] = useState(false);
+  const [faq, setFAQ] = useState(false);
   
    
    
     const capturePhoto1 = async () =>{
-      setShowAccount(false);
-      setHelp(false);
       setChangeUnit(false);
       sethasNewWeight(false);
+      setHelp(false);
+      setShowAccount(false)
+      setHasNewName(false);
+      setFAQ(false);
       if(cameraRef.current == null){
         console.log("Camera couldn't capture!")
         return null;
@@ -643,11 +654,13 @@ const styles = StyleSheet.create({
       
     }
     const capturePhoto2 = async () =>{
-      setShowAccount(false);
-      setHelp(false);
       setChangeUnit(false);
       sethasNewWeight(false);
-        setstartTime(true);
+      setHelp(false);
+      setShowAccount(false)
+      setHasNewName(false);
+      setFAQ(false);
+      setstartTime(true);
 
         if(timerRef.current !== null) return null; // Interval is already running so stop!
         
@@ -1168,8 +1181,8 @@ const styles = StyleSheet.create({
               console.log("UID: " + GlobalState.uid)
               console.log("It was valid ")
             try{
-              await deleteFirebaseStorage(`images/${GlobalState.uid}`);
-              console.log("Firebase Storage Files sucessfully deleted");
+              // await deleteFirebaseStorage(`images/${GlobalState.uid}`);
+              // console.log("Firebase Storage Files sucessfully deleted");
             }
             catch(error){
               console.log("Firebase Storage deletion error: " + error);
@@ -1186,8 +1199,8 @@ const styles = StyleSheet.create({
             }
             
             
-            const docRef = doc(dbCollection, GlobalState.uid);
-            await deleteDoc(docRef);
+            // const docRef = doc(dbCollection, GlobalState.uid);
+            // await deleteDoc(docRef);
             FastImage.clearDiskCache();
             FastImage.clearMemoryCache();
             setImageData(null);
@@ -1436,8 +1449,99 @@ const styles = StyleSheet.create({
           null
           }
 
+          {faq ? 
+            <View style={{position: 'absolute', left: !isTablet() ? 50 : 200, top: '16%', height: !isTablet() ? 540 : 750, width: !isTablet() ? 300 : 450, backgroundColor: '#258c8cff', borderRadius: 20, 
+           flexDirection: 'column', paddingTop: 40, padding: 5, paddingRight: 7}}>
+               <TouchableOpacity style={{zIndex: 1, position: 'absolute', top: 10, left: 10, width: 30, height: 30,
+                 alignItems: 'center', justifyContent: 'center'}} onPress={() => setFAQ(false)}>
+                  <Text style={{fontSize: !isTablet() ? 25 : 30, textShadowColor: '#00ffff', textShadowOffset: {width: 0, height: 0}, textShadowRadius: 2, 
+                color: 'white', fontWeight: 700, zIndex: 3}}>X</Text>
+                </TouchableOpacity>
+                <Text style={{color: 'white', fontSize: !isTablet() ? 25 : 30, alignSelf: 'center', marginBottom: 10}}>FAQs</Text>
+                <Text style={{color: 'white', fontSize: !isTablet() ? 17 : 20, alignSelf: 'center', marginBottom: 10}}>(Refer to the Icon Legend for buttons)</Text>
+                <Text style={{color: 'white', fontSize: !isTablet() ? 17 : 20, alignSelf: 'center', marginBottom: 10}}>(Scroll below to view more)</Text>
+                
+                <ScrollView>
+                  <Pressable>
+                    <Text style={styles.faqQuestion}>How do I take a selife?</Text>
+                    <Text style={styles.faqAnswer}>Use the Capture Button at the bottom of the screen to take your photo. If you want to use flash for your photo, select the Flash Button. Afterwards, you can retake your photo or move on to take your full body photo.</Text>
+                   
+                    <Text style={styles.faqQuestion}>How do I take a full body shot?</Text>
+                    <Text style={styles.faqAnswer}>Use the Capture Button at the bottom of the screen to take your photo. Use the Flash Button to flash for the front/rear camera for your photo. Use the Camera Flip Button to switch between your front/rear camera. After pressing the Capture Button, a 5 second timer will count down to allow you to set your device to capture your photo.</Text>
+                    
+                    <Text style={styles.faqQuestion}>How do I write in my Daily Journal?</Text>
+                    <Text style={styles.faqAnswer}>After taking your full body shot and recording your weight, select the Daily Journal Button to track your thoughts, daily meals, caloric intake, workout, or general feelings/mood.</Text>
+
+                    <Text style={styles.faqQuestion}>How do I access my Account Menu?</Text>
+                    <Text style={styles.faqAnswer}>Select the Account Menu Button to open. Select it again to close.</Text>
+
+                    <Text style={styles.faqQuestion}>How do I open the Icon Legend?</Text>
+                    <Text style={styles.faqAnswer}>Select the Icon Legend Button (in Account Menu) to open.</Text>
+
+                    <Text style={styles.faqQuestion}>How do I change my username?</Text>
+                    <Text style={styles.faqAnswer}>Select the Change Username Button (in Account Menu) and enter your new username then press confirm to save the change.</Text>
+
+                    <Text style={styles.faqQuestion}>How do I change my weight measurement unit?</Text>
+                    <Text style={styles.faqAnswer}>Select the Change Unit Button (in Account Menu) and select the unit you want then press ok to confirm.</Text>
+
+                    <Text style={styles.faqQuestion}>How do I change my goal weight?</Text>
+                    <Text style={styles.faqAnswer}>Select the New Goal? Button (in Account Menu) and enter your new weight then press ok to confirm.</Text>
+
+                     <Text style={styles.faqQuestion}>How do I reset my password?</Text>
+                    <Text style={styles.faqAnswer}>Select the Reset Password Button (in Account Menu) and follow the directions in the email sent to you from WeightPix Support. Make sure to check your spam folder if you don't see it.</Text>
+
+                     <Text style={styles.faqQuestion}>How do I logout of my account?</Text>
+                    <Text style={styles.faqAnswer}>Select the Logout Button (in Account Menu) to logout from your account.</Text>
+
+                     <Text style={styles.faqQuestion}>How do I delete my account?</Text>
+                    <Text style={styles.faqAnswer}>Select the Delete Button (in Account Menu) and confirm deletion by entering your account password.</Text>
+                    
+                    <Text style={styles.faqQuestion}>How do I go to the Image Page from the Camera Page?</Text>
+                    <Text style={styles.faqAnswer}>Press the Image Page Button to go to the Image Page.</Text>
+
+                    <Text style={styles.faqQuestion}>How do I go to scroll through images?</Text>
+                    <Text style={styles.faqAnswer}>Scroll left or right through the collection of images to view all of them.</Text>
+
+                    <Text style={styles.faqQuestion}>How do I enlarge my images?</Text>
+                    <Text style={styles.faqAnswer}>Select an image to enlarge it and pinch to zoom in further. Tap on the image again to return to the main page.</Text>
+
+                    <Text style={styles.faqQuestion}>How do I search through my images?</Text>
+                    <Text style={styles.faqAnswer}>You can search through your images either by weight or date. To search by weight, select the Weight Button and enter your weight. To search by date, select the Date Button. To search a range for either the weight or date use the Range Button.</Text>
+
+                    <Text style={styles.faqQuestion}>How do I read my Daily Journal?</Text>
+                    <Text style={styles.faqAnswer}>Select the Daily Journal Button on the corresponding image set to view your daily journal for that day.</Text>
+
+
+                    <Text style={styles.faqQuestion}>How do I go to the Camera Page?</Text>
+                    <Text style={styles.faqAnswer}>From the Image Page select the Camera Page Button.</Text>
+
+                    <Text style={styles.faqQuestion}>How do I go to the Chart Page?</Text>
+                    <Text style={styles.faqAnswer}>From the Image Page select the Chart Page Button.</Text>
+
+                    <Text style={styles.faqQuestion}>How do I use the chart?</Text>
+                    <Text style={styles.faqAnswer}>Zoom in and out by pinching your fingers on the chart. Drag your finger across the chart to move it when zoomed in. If there are more than 30 days worth of images, you select the Arrow Buttons beneath the chart to view other data points.</Text>
+
+                    <Text style={styles.faqQuestion}>How do I view the lowest and highest weights for a period of time?</Text>
+                    <Text style={styles.faqAnswer}>Select one of the Time Range Buttons. These will give you the lowest and highest weights for that time range. Select 7D for the last 7 days. Select 1M for the past month. Select 6M for the past 6 months. Select 1Y for the past year. Select All (default) for all time.</Text>
+
+                    <Text style={styles.faqQuestion}>How do I search through the chart points?</Text>
+                    <Text style={styles.faqAnswer}>Use the Search Field to search through the dates. Use the Range 
+                      Button to search through a range of dates.</Text>
+
+                    <Text style={styles.faqQuestion}>How do I go to the Image Page from the Chart Page?</Text>
+                    <Text style={styles.faqAnswer}>Use the back Arrow Button at the top left of the page.</Text>
+
+                     <Text style={styles.faqQuestion}>How do I restore my subscription on a new device or account?</Text>
+                    <Text style={styles.faqAnswer}>Select the Restore Purchase button on the subscription page to login to your Apple Account and you will be taken to either your Image or Camera Page.</Text>
+
+                  </Pressable>
+                </ScrollView>
+            </View> 
+            : 
+            null}
+
           {help ?
-           <View style={{position: 'absolute', left: !isTablet() ? 50 : 260, top: '16%', height: !isTablet() ? 420 : 600, width: !isTablet() ? 300 : 350, backgroundColor: '#258c8cff', borderRadius: 20, 
+           <View style={{position: 'absolute', left: !isTablet() ? 50 : 260, top: '16%', height: !isTablet() ? 460 : 650, width: !isTablet() ? 300 : 350, backgroundColor: '#258c8cff', borderRadius: 20, 
            flexDirection: 'column', alignItems: 'center', paddingTop: 60}}>
                <TouchableOpacity style={{zIndex: 1, position: 'absolute', top: 10, left: 10, width: 30, height: 30,
                  alignItems: 'center', justifyContent: 'center'}} onPress={() => setHelp(false)}>
@@ -1454,7 +1558,7 @@ const styles = StyleSheet.create({
                    <View style={{borderRadius: 25, borderWidth: 1, height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, alignItems: 'center', justifyContent: 'center'}}>
                     <Text style={styles.text1}>{username.substring(0,1)}</Text>
                     </View>
-                    <Text style={styles.text1}>  Account/Settings</Text>
+                    <Text style={styles.text1}>  Account Menu</Text>
                   </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 20, paddingLeft: 2}}>
                 <Image source={require('./flashIcon.png')} style={{height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, borderRadius: 20}}/>
@@ -1462,7 +1566,7 @@ const styles = StyleSheet.create({
                   </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 20, paddingLeft: 2}}>
                 <Image source={require('./ipiW.jpg')} style={{height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, borderRadius: 20}}/>
-                  <Text style={styles.text1}>  Data Page Button</Text>
+                  <Text style={styles.text1}>  Image Page Button</Text>
                   </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 20, paddingLeft: 2}}>
                 <Image source={require('./flipCameraImage.png')} style={{height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, borderRadius: 20}}/>
@@ -1474,7 +1578,7 @@ const styles = StyleSheet.create({
                   </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 20, paddingLeft: 2}}>
                  <Image style={{height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, borderRadius: 15}} source={require('./cameraIcon.png')}/>
-                  <Text style={styles.text1}>  Main Page Button</Text>
+                  <Text style={styles.text1}>  Camera Page Button</Text>
                   </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 20, paddingLeft: 2}}>
                  <Image style={{height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, borderRadius: 15}} source={require('./chartIcon.png')}/>
@@ -1482,7 +1586,11 @@ const styles = StyleSheet.create({
                   </View>
                 <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 20, paddingLeft: 2}}>
                  <Image style={{height: !isTablet() ? 20 : 40, width: !isTablet() ? 20 : 40, borderRadius: 15}} source={require('./range.png')}/>
-                  <Text style={styles.text1}>  Weight Range Button</Text>
+                  <Text style={styles.text1}>  Range Button</Text>
+                  </View>
+                <View style={{flexDirection: 'row', alignItems: 'center', width: 260, paddingTop: 12, paddingLeft: 2}}>
+                 <Text style={{fontSize: !isTablet() ? 25 : 45, color: 'white'}}>←</Text>
+                  <Text style={styles.text1}> Arrow Button</Text>
                   </View>
             </View>
             :
@@ -1562,6 +1670,7 @@ const styles = StyleSheet.create({
                                 textAlignVertical='top'
                                 value={notes}
                                 onChangeText={(text) => setNotes(text)}
+                                maxLength={1000}
                                 />
                                </View>
                                 :
@@ -1640,15 +1749,29 @@ const styles = StyleSheet.create({
                        <View style={styles.accountContainer}>
 
                           <TouchableOpacity style={styles.accountOption1} onPress={() => {
+                            setFAQ(true);
+                            setChangeUnit(false);
+                            sethasNewWeight(false);
+                            setHelp(false);
+                            setShowAccount(false)
+                            setHasNewName(false);
+                          }
+                          }>
+                            <Text style={{fontSize: !isTablet() ? 17 : 20}}>FAQs</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity style={styles.accountOption1} onPress={() => {
                             setChangeUnit(false);
                             sethasNewWeight(false);
                             setHelp(true);
                             setShowAccount(false)
                             setHasNewName(false);
+                            setFAQ(false);
                           }
                           }>
-                            <Text style={{fontSize: !isTablet() ? 17 : 20}}>Help</Text>
+                            <Text style={{fontSize: !isTablet() ? 17 : 20}}>Icon Legend</Text>
                           </TouchableOpacity>
+
+
                           <TouchableOpacity style={styles.accountOption1} onPress={() => {
                             
                             setChangeUnit(false);
@@ -1656,6 +1779,7 @@ const styles = StyleSheet.create({
                             setHelp(false);
                             setShowAccount(false)
                             setHasNewName(true);
+                            setFAQ(false);
 
                            }
                           }>
@@ -1667,6 +1791,7 @@ const styles = StyleSheet.create({
                             setHelp(false);
                             setShowAccount(false)
                             setHasNewName(false);
+                            setFAQ(false);
                           }
                           }>
                             <Text style={{fontSize: !isTablet() ? 17 : 20}}>Change Unit</Text>
@@ -1677,6 +1802,7 @@ const styles = StyleSheet.create({
                             setHelp(false);
                             setShowAccount(false)
                             setHasNewName(false);
+                            setFAQ(false);
                           }}>
                             <Text style={{fontSize: !isTablet() ? 17 : 20}}>New Goal?</Text>
                           </TouchableOpacity>
@@ -1687,6 +1813,7 @@ const styles = StyleSheet.create({
                               setHelp(false);
                               setShowAccount(false)
                               setHasNewName(false);
+                              setFAQ(false);
                                 Alert.alert('Reset Password', 'Are you sure you want to reset your password?',
                     [{
                         text: 'Cancel',
@@ -1706,6 +1833,7 @@ const styles = StyleSheet.create({
                               setHelp(false);
                               setShowAccount(false)
                               setHasNewName(false);
+                              setFAQ(false);
                                 Alert.alert('Logout', 'Are you sure you want to Logout?',
                     [{
                         text: 'Cancel',
@@ -1724,6 +1852,7 @@ const styles = StyleSheet.create({
                               setHelp(false);
                               setShowAccount(false)
                               setHasNewName(false);
+                              setFAQ(false);
                                 Alert.alert('Delete Account', 'Are you sure you want to delete your account?',
                     [{
                         text: 'Cancel',
