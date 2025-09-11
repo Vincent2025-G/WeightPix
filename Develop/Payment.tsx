@@ -115,7 +115,6 @@ export const Payment = ({navigation}: Prop) => {
   const [triedToSubscribe, setTriedToSubscribe] = useState<boolean | null>(null);    
 
 
-    
   useEffect(() => { 
 
       // Gets all of the subscriptions for the app!

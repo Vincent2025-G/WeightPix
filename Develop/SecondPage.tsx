@@ -1188,6 +1188,33 @@ useEffect(() => {
     <ActivityIndicator size="large" color="#00ffff" />
   </View> )
   }
+
+
+    const weights = [
+  180, 179, 178, 178, 177, 177, 176, 176, 
+  175, 175, 174, 174, 173, 173, 172, 172, 
+  174, 175, 176, 177, 176, 175, 174, 175, 
+  173, 173, 172, 171, 172, 170, 169, 168, 
+  168, 166, 165, 164, 163, 166, 165, 167.5
+]
+
+const dates = [
+  "07/31/25", "08/01/25", "08/02/25", "08/03/25", "08/04/25",
+  "08/05/25", "08/06/25", "08/07/25", "08/08/25", "08/09/25",
+  "08/10/25", "08/11/25", "08/12/25", "08/13/25", "08/14/25",
+  "08/15/25", "08/16/25", "08/17/25", "08/18/25", "08/19/25",
+  "08/20/25", "08/21/25", "08/22/25", "08/23/25", "08/24/25",
+  "08/25/25", "08/26/25", "08/27/25", "08/28/25", "08/29/25",
+  "08/30/25", "08/31/25", "09/01/25", "09/02/25", "09/03/25",
+  "09/04/25", "09/05/25", "09/06/25", "09/07/25", "09/08/25"
+]
+
+let testData: imageDataType[] = []
+for(let i = 0; i < dates.length; i++){
+  testData = [...testData, {selfie: imageData![0].selfie, fullBody: imageData![0].fullBody, weight: weights[i] + "", date: dates[i], notes: imageData![0].notes, selfieName: imageData![0].selfieName, fullBodyName: imageData![0].fullBodyName}]
+}
+
+
   
    return(
      <TouchableWithoutFeedback onPress={Keyboard.dismiss} >
@@ -1430,6 +1457,8 @@ useEffect(() => {
        </View>
        : null}
 
+       
+
 
      {(!selfieSelected && !fullBodySelected) ?
            <View style={{height: !isTablet() ?  650 : 800}}>
@@ -1636,7 +1665,7 @@ useEffect(() => {
                  </View>
                  <View style={{justifyContent: 'center'}}>
                  <TouchableOpacity onPress={() => {
-                  navigation.navigate('ChartPage', {imageData: imageData!}) 
+                  navigation.navigate('ChartPage', {imageData: testData!}) 
                   // if(storingDone == true){ 
                   // navigation.navigate('ChartPage', {imageData: imageData!}) 
                   // }

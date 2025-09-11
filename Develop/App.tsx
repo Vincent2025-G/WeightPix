@@ -52,7 +52,8 @@ function App(): React.JSX.Element {
   interface UserDataTypes{
     photos: imageDataType[],
     endTime: Timestamp, 
-    completedOnboard: boolean
+    completedOnboard: boolean,
+    username: string
   }
 
   const navigationRef = createNavigationContainerRef();
@@ -167,35 +168,39 @@ function App(): React.JSX.Element {
       // notification will be sent.
      const checkIfPicture = async () => {
         try{
+          if(userSignedIn){
+            console.log("Checking if the user took a picture!");
+            const dbCollection = collection(firestore, 'Users'); 
+            const docRef = doc(dbCollection, GlobalState.uid);
+            const docSnap = await getDoc(docRef); 
 
-          console.log("Checking if the user took a picture!");
-          const dbCollection = collection(firestore, 'Users'); 
-          const docRef = doc(dbCollection, GlobalState.uid);
-          const docSnap = await getDoc(docRef); 
+            if(docSnap.exists()){
+              const user = docSnap.data() as UserDataTypes;
+              if(user?.photos.length > 0){
+                const photos = user?.photos;
+                GlobalState.dataLength = photos.length
+                const lastPhoto = photos[photos.length - 1];
 
-          if(docSnap.exists()){
-            const user = docSnap.data() as UserDataTypes;
-            if(user?.photos.length > 0){
-              const photos = user?.photos;
-              GlobalState.dataLength = photos.length
-              const lastPhoto = photos[photos.length - 1];
-
-              // Ensuring the format is the same for accurate comparison
-              const now = format(new Date(), 'MM/dd/yy');
-              
-              if(lastPhoto.date == now){
-                console.log(photos[photos.length - 1].date + " Date works")
-                setTookPicture(true);
-              }
-              else{
-                console.log("Hasn't taken picture");
-                if(permission.alert){
-                  scheduleNotifications()
+                // Ensuring the format is the same for accurate comparison
+                const now = format(new Date(), 'MM/dd/yy');
+                
+                if(lastPhoto.date == now){
+                  console.log("Already took their pictures for the day")
+                  console.log(photos[photos.length - 1].date + " Date works")
+                  setTookPicture(true);
                 }
+                else{
+                  console.log("Hasn't taken picture");
+
+                  // Stating whether the user has allowed for push notifications.
+                  if(permission.alert){
+                    scheduleNotifications(user?.username);
+                  }
+                }
+              
               }
-             
             }
-          }
+         }
         }
         catch(error){
           console.log('error ' + error);
@@ -206,14 +211,17 @@ function App(): React.JSX.Element {
     
     })
   
-  }, [])
+  }, [userSignedIn])
 
 
-  const scheduleNotifications = () => {
+  const scheduleNotifications = (user: string) => {
+
     console.log("Schedule Notification works!");
     const now = new Date();
     const newTime = new Date();
-    newTime.setHours(16, 0, 0, 0); 
+
+    // 7:30 is the most likely time that someone would want to log weight.
+    newTime.setHours(19, 30, 0, 0); 
 
     // Making sure that if the time has already passed then set a reminder
     // for the next day. So it will trigger for the next day even if they
@@ -223,9 +231,9 @@ function App(): React.JSX.Element {
     }
 
     PushNotificationIOS.addNotificationRequest({
-      id: 'photoReminder',
+      id: `${GlobalState.uid}/photoReminder`,
       title: 'Reminder',
-      body: "Don't forget to take your photos today!",
+      body: `Hey ${user}, don't forget to take your pix today!`,
       fireDate: newTime
     });
   }

@@ -19,6 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserData } from './UserData';
 import { sendPasswordResetEmail, signOut } from '@react-native-firebase/auth';
 import {useNetInfo} from '@react-native-community/netinfo'
+import  PushNotificationIOS  from '@react-native-community/push-notification-ios';
 
 import {
   ScrollView,
@@ -846,6 +847,10 @@ const styles = StyleSheet.create({
         return;
       }
 
+      // Removing reminder because the user already took the pictures.
+      PushNotificationIOS.removePendingNotificationRequests([`${GlobalState.uid}/photoReminder`]);
+      PushNotificationIOS.removeDeliveredNotifications([`${GlobalState.uid}/photoReminder`])
+
       const formattedDate = format(new Date(), 'MM/dd/yy'); 
 
       // console.log("selfie path " + selfiePath);
@@ -1519,7 +1524,7 @@ const styles = StyleSheet.create({
                     <Text style={styles.faqAnswer}>From the Image Page select the Chart Page Button.</Text>
 
                     <Text style={styles.faqQuestion}>How do I use the chart?</Text>
-                    <Text style={styles.faqAnswer}>Zoom in and out by pinching your fingers on the chart. Drag your finger across the chart to move it when zoomed in. If there are more than 30 days worth of images, you select the Arrow Buttons beneath the chart to view other data points.</Text>
+                    <Text style={styles.faqAnswer}>Zoom in and out by pinching your fingers on the chart. Drag your finger across the chart to move it when zoomed in. If there are more than 7 days worth of images, you select the Arrow Buttons beneath the chart to view other data points.</Text>
 
                     <Text style={styles.faqQuestion}>How do I view the lowest and highest weights for a period of time?</Text>
                     <Text style={styles.faqAnswer}>Select one of the Time Range Buttons. These will give you the lowest and highest weights for that time range. Select 7D for the last 7 days. Select 1M for the past month. Select 6M for the past 6 months. Select 1Y for the past year. Select All (default) for all time.</Text>

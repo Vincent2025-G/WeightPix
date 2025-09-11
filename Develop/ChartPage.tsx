@@ -96,9 +96,9 @@ import {isTablet} from 'react-native-device-info';
    },
      goalText: {
         fontSize: !isTablet() ? 20 : 23,
-        color: 'white',
+        color: 'gold',
         fontWeight: 'bold',
-        textShadowColor: '#00ffff',
+        textShadowColor: 'gold',
         textShadowOffset: {width: 0, height: 0}, // Defines the position of shadow (0,0 in center)
         textShadowRadius: 3, // Controls how far the shadow blurs out.
         
@@ -492,7 +492,7 @@ import {isTablet} from 'react-native-device-info';
 
     useEffect(() => {
       if(filteredImageData != null){
-        setMin(filteredImageData!.length - 30);
+        setMin(filteredImageData!.length - 7);
         setMax(filteredImageData!.length - 1);
       }
     }, [filteredImageData])
@@ -501,8 +501,8 @@ import {isTablet} from 'react-native-device-info';
     const goBack = () => {
       console.log("Min: " + min + " Max: " + max);
       if(min > 0){
-        setMin(min => min - 30);
-        setMax(max => max - 30);
+        setMin(min => min - 7);
+        setMax(max => max - 7);
       } 
       else{
         setMin(0);
@@ -512,12 +512,12 @@ import {isTablet} from 'react-native-device-info';
     const goForward = () => {
       console.log("Min: " + min + " Max: " + max);
       if(min < filteredImageData!.length && max < filteredImageData!.length - 1){
-        setMin(min => min + 30);
-        setMax(max => max + 30);
+        setMin(min => min + 7);
+        setMax(max => max + 7);
       } 
       else{
         setMax(filteredImageData!.length - 1);
-        setMin(filteredImageData!.length - 30);
+        setMin(filteredImageData!.length - 7);
       }
     }
 
@@ -599,17 +599,17 @@ import {isTablet} from 'react-native-device-info';
 
      const [showValues, setShowValues] = useState(false);
 
-     const handleShowValues = (scaleX: number, scaleY: number) => {
-        console.log("handleShowValues entered");
-      const zoomAmount = 1.5;
+    //  const handleShowValues = (scaleX: number, scaleY: number) => {
+    //     console.log("handleShowValues entered");
+    //   const zoomAmount = 1.5;
 
-        if(scaleX >= zoomAmount && !showValues){
-          setShowValues(true);
-        }
-        else{
-          setShowValues(false);
-        }
-     }
+    //     if(scaleX >= zoomAmount && !showValues){
+    //       setShowValues(true);
+    //     }
+    //     else{
+    //       setShowValues(false);
+    //     }
+    //  }
         
      
      if(!dataLoaded){
@@ -768,7 +768,7 @@ import {isTablet} from 'react-native-device-info';
      onChartGestureStart: () => console.log('Gesture started ✅'),
     onChartScale: (event:any) => {
       const { scaleX, scaleY } = event.nativeEvent;
-      handleShowValues(scaleX, scaleY);
+      // handleShowValues(scaleX, scaleY);
     },
   }}
 
@@ -826,14 +826,14 @@ import {isTablet} from 'react-native-device-info';
       limitLines:[{ 
       limit: Number(goalWeight!), 
       labelPosition: 'LEFT_TOP',
-      lineColor: processColor('#00ffff'),
+      lineColor: processColor('gold'),
       lineWidth: 1,
     }]
     },
     right: { enabled: false },
   }}
   visibleRange={{
-    x: { min: 1, max: 30 }, 
+    x: { min: 1, max: 7 }, 
   }}
   legend={{enabled: false}}
   dragEnabled={true}

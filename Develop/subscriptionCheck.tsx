@@ -99,6 +99,15 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                         return;
                     }
 
+                    // No subscription data available so direct them to payment page.
+                    if(result?.status == 401){
+                        if(jsonResponse.Error.includes("No purchase history")){
+                            Alert.alert("Please subscribe!");
+                            navigation.navigate("Payment");
+                            return;
+                        }
+                    }
+
                     const now = new Date();
                     const expirationDate = new Date(jsonResponse.ExpireDate);
                     console.log("Now: " + now + " Expired: " + expirationDate);
