@@ -8,7 +8,8 @@ import {
   getReceiptIOS,
   type Purchase,
   purchaseUpdatedListener,
-  getAvailablePurchases
+  getAvailablePurchases,
+  purchaseErrorListener
 } from "react-native-iap";
 import * as RNFS from '@dr.pogodin/react-native-fs';
 import {useCheckSubscriptionInfo} from './subscriptionCheck'
@@ -112,7 +113,9 @@ export const Payment = ({navigation}: Prop) => {
     currentPurchaseError
   } = useIAP(); 
 
-  const [triedToSubscribe, setTriedToSubscribe] = useState<boolean | null>(null);    
+  const [triedToSubscribe, setTriedToSubscribe] = useState<boolean | null>(null); 
+  
+  
 
 
   useEffect(() => { 
@@ -155,6 +158,27 @@ export const Payment = ({navigation}: Prop) => {
 
   }, [connected])
 
+
+  // 
+  useEffect(() => {
+  const purchaseUpdate = purchaseUpdatedListener(async (purchase: Purchase) => {
+    console.log("Purchase Updated:", JSON.stringify(purchase, null, 2));
+    if (purchase.transactionReceipt) {
+      // validate receipt with your backend
+      await finishTransaction({ purchase, isConsumable: false });
+    }
+  });
+
+  const purchaseError = purchaseErrorListener((error) => {
+    console.warn("Purchase Error:", error);
+  });
+
+  return () => {
+    purchaseUpdate.remove();
+    purchaseError.remove();
+  };
+}, []);
+
   
 
 
@@ -191,7 +215,6 @@ export const Payment = ({navigation}: Prop) => {
         console.log("Request subscription entered!");
         await requestSubscription({sku: productId});
         // setTriedToSubscribe(true);
-        
     }
     catch (error){
         // setLoading(false);
@@ -219,7 +242,7 @@ export const Payment = ({navigation}: Prop) => {
   useEffect(() => { 
 
     const checkPurchase = async (purchase: Purchase | undefined) => {
-
+    
      console.log("Purchase: " + purchase);
         if(purchase){          
             try{    
@@ -227,9 +250,7 @@ export const Payment = ({navigation}: Prop) => {
                 if(receipt){
                     if(isIos){
                         const isTestEnv = __DEV__;  
-                        console.log("This is the currentPurchase error: " + purchaseUpdatedListener)
                         await validate(receipt, subInfoPath, "Home", imageData?.length ?? 0);
-
                         return; 
                     }  
                 } 
@@ -237,14 +258,15 @@ export const Payment = ({navigation}: Prop) => {
             catch (error){
                 // setLoading(false);    
                 console.log("Error: " + error);
+                return;
             }
         }
         else{
             console.log("This is the currentPurchase error: " + currentPurchaseError)
             console.log("purchase history error: " + JSON.stringify(purchaseHistory, null, 2)); 
-
         }
     }  
+        console.log("Current purchase: " + currentPurchase);
 
         // console.log("Tried to subscribe: " + triedToSubscribe);
         // if(triedToSubscribe){

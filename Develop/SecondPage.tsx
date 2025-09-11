@@ -1209,10 +1209,10 @@ const dates = [
   "09/04/25", "09/05/25", "09/06/25", "09/07/25", "09/08/25"
 ]
 
-let testData: imageDataType[] = []
-for(let i = 0; i < dates.length; i++){
-  testData = [...testData, {selfie: imageData![0].selfie, fullBody: imageData![0].fullBody, weight: weights[i] + "", date: dates[i], notes: imageData![0].notes, selfieName: imageData![0].selfieName, fullBodyName: imageData![0].fullBodyName}]
-}
+// let testData: imageDataType[] = []
+// for(let i = 0; i < dates.length; i++){
+//   testData = [...testData, {selfie: imageData![0].selfie, fullBody: imageData![0].fullBody, weight: weights[i] + "", date: dates[i], notes: imageData![0].notes, selfieName: imageData![0].selfieName, fullBodyName: imageData![0].fullBodyName}]
+// }
 
 
   
@@ -1665,7 +1665,7 @@ for(let i = 0; i < dates.length; i++){
                  </View>
                  <View style={{justifyContent: 'center'}}>
                  <TouchableOpacity onPress={() => {
-                  navigation.navigate('ChartPage', {imageData: testData!}) 
+                  navigation.navigate('ChartPage', {imageData: imageData!}) 
                   // if(storingDone == true){ 
                   // navigation.navigate('ChartPage', {imageData: imageData!}) 
                   // }
