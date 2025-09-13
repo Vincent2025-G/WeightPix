@@ -4,14 +4,14 @@ import { NavigationContainer, createStaticNavigation, RouteProp } from '@react-n
 import { createNativeStackNavigator, NativeStackScreenProps} from '@react-navigation/native-stack';
 import { RootStackParamList } from './StackList';
 import { imageDataType } from './StackList';
-import {firestore} from './Firebase'
-import {collection, doc, getDoc, Timestamp, updateDoc} from '@react-native-firebase/firestore'
+import {firestore, storage} from './Firebase'
+import {collection, doc, getDoc, Timestamp, updateDoc, arrayUnion} from '@react-native-firebase/firestore'
 // import firebase from "@react-native-firebase/app";
 import { GlobalState } from './GlobalState';
 import { UserData } from './UserData';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import  PushNotificationIOS  from '@react-native-community/push-notification-ios';
-import {format} from 'date-fns'
+import {format, parse} from 'date-fns'
 import * as RNFS from '@dr.pogodin/react-native-fs';
 // import Toast from 'react-native-toast-message';
 import FastImage from 'react-native-fast-image'
@@ -19,6 +19,7 @@ import {Gesture, GestureDetector, State} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, withSpring, runOnJS, withTiming, ColorSpace} from 'react-native-reanimated'
 import {useCheckSubscriptionInfo} from './subscriptionCheck';
 import {isTablet} from 'react-native-device-info';
+import {useNetInfo} from '@react-native-community/netinfo'
 
 import {
  ScrollView,
@@ -45,6 +46,7 @@ import {
 ViewToken
 
 } from 'react-native';
+import { parseBoxShadowString } from 'react-native-reanimated/lib/typescript/common';
 
 // import { PinchGesture } from 'react-native-gesture-handler/lib/typescript/handlers/gestures/pinchGesture';
 
@@ -377,13 +379,14 @@ export const SecondPage = ({navigation, route}: Prop): React.JSX.Element => {
   const userDir = `${RNFS.DocumentDirectoryPath}/${GlobalState.uid}`;
   const subInfoPath = `${userDir}/subInfo`;
   const objPath = `${userDir}/images.json`;
-  const urlPath = `${userDir}/urls.json`;
+  const tempPath = `${userDir}/temp`;
   const changedDataPath = `${userDir}/changeddata.json`;
   // const urlPath = `${userDir}/urls.json`;
   const updatedPath = RNFS.DocumentDirectoryPath.split('/')[6];
   const [alreadyHasData, setAlreadyHasData] = useState(false);
   const [storingDone, setStoringDone] = useState<boolean | null>(null);
   const [loadError, setLoadError] = useState(false);
+  const {isConnected} = useNetInfo()
   
   const {checkLocal} = useCheckSubscriptionInfo();
   
@@ -647,7 +650,6 @@ useEffect(() => {
   // Called on load as well as when storeAsyncData has finished downloading.
   useEffect(() => {
     const setImages = async () => {
-
       try{ 
 
         const exists = await RNFS.exists(userDir);
@@ -663,9 +665,20 @@ useEffect(() => {
 
         // Getting the images from the local path
         const storedImageData = await RNFS.readFile(objPath, 'utf8');
-        const storedImageObj = JSON.parse(storedImageData);
+        let storedImageObj = JSON.parse(storedImageData);
 
-        console.log("stored image obj: " + storedImageObj.length)
+        console.log("stored image obj: " + storedImageObj.length);
+
+        // Adding the temporary path if there was any pictures taken
+        // without a connection.
+         const tempPathExists = await RNFS.exists(tempPath);
+         if(tempPathExists){
+
+            const storedData = await RNFS.readFile(tempPath);
+            const parsedData = JSON.parse(storedData);
+
+            storedImageObj = [...storedImageObj, ...parsedData];
+         }
 
         if((imageData != null && exists && imageData.length > storedImageObj.length)){
           console.log("Image Data larger! " + imageData.length);
@@ -695,9 +708,9 @@ useEffect(() => {
   }, [storingDone, loadError]);
 
 
-  // Checking the difference between the database and the local storage.
+  // Checking to see if the databse is larger than local storage.
   useEffect(() =>{
-    const checkIfDifference = async () => {
+    const checkIfDatabaseLarger = async () => {
       console.log("Calling checker");
       try{
         console.log("Data Length: " + GlobalState.dataLength +  "imageData length: " + imageData!.length);
@@ -728,7 +741,7 @@ useEffect(() => {
     }
   }
 
-    checkIfDifference();
+    checkIfDatabaseLarger();
   
 }, [localHasData])
 
@@ -1175,6 +1188,33 @@ useEffect(() => {
     <ActivityIndicator size="large" color="#00ffff" />
   </View> )
   }
+
+
+    const weights = [
+  180, 179, 178, 178, 177, 177, 176, 176, 
+  175, 175, 174, 174, 173, 173, 172, 172, 
+  174, 175, 176, 177, 176, 175, 174, 175, 
+  173, 173, 172, 171, 172, 170, 169, 168, 
+  168, 166, 165, 164, 163, 166, 165, 167.5
+]
+
+const dates = [
+  "07/31/25", "08/01/25", "08/02/25", "08/03/25", "08/04/25",
+  "08/05/25", "08/06/25", "08/07/25", "08/08/25", "08/09/25",
+  "08/10/25", "08/11/25", "08/12/25", "08/13/25", "08/14/25",
+  "08/15/25", "08/16/25", "08/17/25", "08/18/25", "08/19/25",
+  "08/20/25", "08/21/25", "08/22/25", "08/23/25", "08/24/25",
+  "08/25/25", "08/26/25", "08/27/25", "08/28/25", "08/29/25",
+  "08/30/25", "08/31/25", "09/01/25", "09/02/25", "09/03/25",
+  "09/04/25", "09/05/25", "09/06/25", "09/07/25", "09/08/25"
+]
+
+// let testData: imageDataType[] = []
+// for(let i = 0; i < dates.length; i++){
+//   testData = [...testData, {selfie: imageData![0].selfie, fullBody: imageData![0].fullBody, weight: weights[i] + "", date: dates[i], notes: imageData![0].notes, selfieName: imageData![0].selfieName, fullBodyName: imageData![0].fullBodyName}]
+// }
+
+
   
    return(
      <TouchableWithoutFeedback onPress={Keyboard.dismiss} >
@@ -1417,6 +1457,8 @@ useEffect(() => {
        </View>
        : null}
 
+       
+
 
      {(!selfieSelected && !fullBodySelected) ?
            <View style={{height: !isTablet() ?  650 : 800}}>
@@ -1646,4 +1688,3 @@ useEffect(() => {
         </TouchableWithoutFeedback>
    )
 }
-

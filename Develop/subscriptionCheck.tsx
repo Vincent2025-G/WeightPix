@@ -55,7 +55,7 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
 
                     const controller = new AbortController();
                     const timeout = setTimeout(() => controller.abort(), 8000);
-                    const result = await fetch("http://192.168.1.12:5001/weightwatcher-2d8cf/us-central1/receiptProcessor", {     
+                    const result = await fetch("http://192.168.1.10:5001/weightwatcher-2d8cf/us-central1/receiptProcessor", {     
                     method: "POST", 
                     headers: {
                         "Content-Type": "application/json",
@@ -68,6 +68,8 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                     signal: controller.signal
                     }).catch(error => {
                     const message = error?.toString() || "";
+
+                    console.log("message: " + message);
 
                     if (message.includes("Abort") || message.includes("Network") || message.includes("timeout")) {
                         Alert.alert("Connection issue", "Couldn’t reach server to validate subscription. Please check your internet and try again.",
@@ -92,6 +94,20 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                     const jsonResponse = await result!.json(); 
                     console.log("result status: " + result!.status);
                     
+                    if(result?.status == 429){
+                        console.log("Too many calls!");
+                        return;
+                    }
+
+                    // No subscription data available so direct them to payment page.
+                    if(result?.status == 401){
+                        if(jsonResponse.Error.includes("No purchase history")){
+                            Alert.alert("Please subscribe!");
+                            navigation.navigate("Payment");
+                            return;
+                        }
+                    }
+
                     const now = new Date();
                     const expirationDate = new Date(jsonResponse.ExpireDate);
                     console.log("Now: " + now + " Expired: " + expirationDate);
@@ -228,7 +244,7 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                             console.log("Local expiration date: " + subDate + " Now:" + now);
                             if(subDate > now){
                                 setValidSubscription(true);
-                                return true;
+                                
                                 console.log("Valid local expiration date!");
                                 if(currentScreen == 'Login' && photoLength > 0){
                                     navigation.navigate('Data', {imageData: null});
@@ -236,6 +252,8 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                                 else if(currentScreen == 'Login'){
                                     navigation.navigate('Home');
                                 }
+
+                                return true;
                             }
                             else{
                                 fetchFromDatabase(subInfoPath, currentScreen, photoLength);
