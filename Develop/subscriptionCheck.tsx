@@ -102,6 +102,7 @@ const storeReceiptData = async (subInfoPath: string, expirationDate: Date = new 
                     // No subscription data available so direct them to payment page.
                     if(result?.status == 401){
                         if(jsonResponse.Error.includes("No purchase history")){
+                            console.log("No purchase history!")
                             Alert.alert("Please subscribe!");
                             navigation.navigate("Payment");
                             return;

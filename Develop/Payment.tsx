@@ -162,9 +162,10 @@ export const Payment = ({navigation}: Prop) => {
   // 
   useEffect(() => {
   const purchaseUpdate = purchaseUpdatedListener(async (purchase: Purchase) => {
+
     console.log("Purchase Updated:", JSON.stringify(purchase, null, 2));
+
     if (purchase.transactionReceipt) {
-      // validate receipt with your backend
       await finishTransaction({ purchase, isConsumable: false });
     }
   });
@@ -282,7 +283,7 @@ export const Payment = ({navigation}: Prop) => {
             <View style={styles.subscriptionCard}>
               <Text style={styles.largeText}>Full Access Plan</Text>
                 <Text style={styles.bullet}>{'\u2022'}
-                    <Text style={styles.text}>Track daily photos</Text>
+                    <Text style={styles.text}>Track daily photos/weight</Text>
                 </Text>
                 <Text style={styles.bullet}>{'\u2022'}
                     <Text style={styles.text}>Organized journal entries</Text>

@@ -196,6 +196,7 @@ import {useNetInfo} from '@react-native-community/netinfo'
                     let photoLength = 0;
 
                     try{
+                        
                         const dbCollection = collection(firestore, 'Users'); 
                         const docRef = doc(dbCollection, GlobalState.uid);
                         const docSnapShot = await getDoc(docRef); 

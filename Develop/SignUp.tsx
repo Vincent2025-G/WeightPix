@@ -141,7 +141,8 @@ import {useNetInfo} from '@react-native-community/netinfo'
               goalWeight: '',
               unit: 'lb',
               paid: false,
-              deviceID: deviceID
+              deviceID: deviceID,
+              lastPictureDate: new Date(0)
             })
 
             sendEmailVerification(user).then(async () => {

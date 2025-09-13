@@ -15,7 +15,7 @@ import { auth, firestore, storage } from './Firebase.ts';
 import {EmailAuthProvider, reauthenticateWithCredential, deleteUser} from '@react-native-firebase/auth'
 import { CopilotProvider, CopilotStep, walkthroughable, useCopilot } from 'react-native-copilot';
 import * as RNFS from '@dr.pogodin/react-native-fs';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { UserData } from './UserData';
 import { sendPasswordResetEmail, signOut } from '@react-native-firebase/auth';
 import {useNetInfo} from '@react-native-community/netinfo'
@@ -872,22 +872,7 @@ const styles = StyleSheet.create({
         await RNFS.mkdir(userDir);
       }
 
-      // If there is no connection then store in the tempPath
-      // if(!isConnected){
-      //   console.log("No connection so store offline!");
-      //   const exists = await RNFS.exists(tempPath);
 
-      //   if(!exists){
-      //     await RNFS.writeFile(tempPath, JSON.stringify([fastImgObj]), 'utf8');
-      //   }
-      //   else{
-      //     const storedData = await RNFS.readFile(tempPath);
-      //     let parsedData = JSON.parse(storedData);
-
-      //     parsedData = [...parsedData, fastImgObj];
-      //     await RNFS.writeFile(tempPath, JSON.stringify(parsedData), 'utf8');
-      //   }
-      // }
 
 
       let currData: imageDataType[] = imageData!;
@@ -947,7 +932,7 @@ const styles = StyleSheet.create({
       try{
         const dbCollection = collection(firestore, 'Users');
         const docRef = doc(dbCollection, GlobalState.uid);
-        await updateDoc(docRef, {photos: arrayUnion(imgObj)});
+        await updateDoc(docRef, {photos: arrayUnion(imgObj), lastPictureDate: formattedDate});
       }
       catch(error){
         console.log("Error with the arrayUnion: " + error);

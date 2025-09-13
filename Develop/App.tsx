@@ -22,7 +22,7 @@ import { Payment } from './Payment.tsx';
 import {imageDataType} from './StackList';
 import {auth, firestore} from './Firebase.ts'
 import { onAuthStateChanged, useUserAccessGroup } from '@react-native-firebase/auth';
-import {collection, doc, getDoc, Timestamp} from '@react-native-firebase/firestore'
+import {collection, doc, getDoc, Timestamp, updateDoc} from '@react-native-firebase/firestore'
 import 'react-native-charts-wrapper';
 import { GlobalState } from './GlobalState.ts';
 import {View, ActivityIndicator} from 'react-native'
@@ -37,9 +37,14 @@ import { UserDataProvider, UserData } from './UserData.tsx';
 import { getSubscriptions } from 'react-native-iap';
 import { withIAPContext } from 'react-native-iap';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import messaging from '@react-native-firebase/messaging'
+import * as RNFS from '@dr.pogodin/react-native-fs';
+import {getIdToken} from '@react-native-firebase/auth';
+import {isTablet} from 'react-native-device-info';
+
 
  
-
+ 
 function App(): React.JSX.Element {
 
   const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -49,6 +54,8 @@ function App(): React.JSX.Element {
   const [completedOnboard, setCompletedOnboard] = useState<boolean | null>(null);
   const [initialNavReady, setInitialNavReady] = useState(false);
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
+  let uid = "";
+
   interface UserDataTypes{
     photos: imageDataType[],
     endTime: Timestamp, 
@@ -57,8 +64,8 @@ function App(): React.JSX.Element {
   }
 
   const navigationRef = createNavigationContainerRef();
-
-  
+  let userDir = '';
+  let tokenPath = '';
  
   useEffect(() => {
     console.log('completedOnboard:', completedOnboard);
@@ -70,6 +77,9 @@ function App(): React.JSX.Element {
         console.log("Signed in");
         setUserSignedIn(true);
         GlobalState.uid = user.uid
+        uid = user.uid;
+        userDir = `${RNFS.DocumentDirectoryPath}/${user.uid}`;
+        tokenPath = `${userDir}/tokenPath`;
       }
       else{
         setUserSignedIn(false);
@@ -79,6 +89,7 @@ function App(): React.JSX.Element {
     return () => check();
   }, [])
 
+ 
  
 
   
@@ -157,86 +168,217 @@ function App(): React.JSX.Element {
       checkIfOnboard()  
     }, [userSignedIn, completedOnboard])
 
-   
- 
-  
 
-  useEffect(() => {
-    PushNotificationIOS.requestPermissions({alert: true, sound: true, badge: true}).then((permission) => {
+// Permissions for android
+// async function requestNotificationPermission() {
+//   if (Platform.OS === 'android') {
+//     const androidVersion = Platform.Version;
+//     if (androidVersion >= 13) {
+//       const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+//       return granted === PermissionsAndroid.RESULTS.GRANTED;
+//     }
+//     return true;
+//   }
+//   return true;
+// }
 
-      // Checking if the user took the picture and if so change took picture to true so no 
-      // notification will be sent.
-     const checkIfPicture = async () => {
-        try{
-          if(userSignedIn){
-            console.log("Checking if the user took a picture!");
-            const dbCollection = collection(firestore, 'Users'); 
-            const docRef = doc(dbCollection, GlobalState.uid);
-            const docSnap = await getDoc(docRef); 
 
-            if(docSnap.exists()){
-              const user = docSnap.data() as UserDataTypes;
-              if(user?.photos.length > 0){
-                const photos = user?.photos;
-                GlobalState.dataLength = photos.length
-                const lastPhoto = photos[photos.length - 1];
-
-                // Ensuring the format is the same for accurate comparison
-                const now = format(new Date(), 'MM/dd/yy');
-                
-                if(lastPhoto.date == now){
-                  console.log("Already took their pictures for the day")
-                  console.log(photos[photos.length - 1].date + " Date works")
-                  setTookPicture(true);
-                }
-                else{
-                  console.log("Hasn't taken picture");
-
-                  // Stating whether the user has allowed for push notifications.
-                  if(permission.alert){
-                    scheduleNotifications(user?.username);
-                  }
-                }
-              
-              }
-            }
-         }
-        }
-        catch(error){
-          console.log('error ' + error);
-        }
-     }
- 
-      checkIfPicture();
     
-    })
-  
-  }, [userSignedIn])
+    // Requesting the user's permission to send them notfications.
+useEffect(() => {
+   const requestPermissions = async () => {
+      const authStatus = await messaging().requestPermission();
+      const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || authStatus === messaging.AuthorizationStatus.PROVISIONAL; 
+
+      if(enabled){
+        console.log("User has given permissions");
+      }
+
+    const token = await messaging().getToken();
+    console.log("FCM Token:", token); 
+   }
+
+   requestPermissions();
+
+  }, []);
 
 
-  const scheduleNotifications = (user: string) => {
+  // Sending the token to the server
+  const sendTokenToFirebase = async (token: string) => {
+    // const idToken = await getIdToken(auth.currentUser!, true);
 
-    console.log("Schedule Notification works!");
-    const now = new Date();
-    const newTime = new Date();
+    // const req = await fetch("http://192.168.1.10:5001/weightwatcher-2d8cf/us-central1/notificationManager", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type" : "application/json",
+    //     "Authorization": `Bearer ${idToken}`
+    //   },
+    //   body: JSON.stringify({tokenID: token})
+    // });
 
-    // 7:30 is the most likely time that someone would want to log weight.
-    newTime.setHours(19, 30, 0, 0); 
+    // if(req.status == 400 || req.status == 401){
+    //   console.log("Invalid call!");
+    //   return;
+    // } 
 
-    // Making sure that if the time has already passed then set a reminder
-    // for the next day. So it will trigger for the next day even if they
-    // don't open the app again.
-    if(now > newTime){
-      newTime.setDate(newTime.getDate() + 1);
+    // if(req.status == 429){
+    //   console.log("Too many calls!");
+    //   return;
+    // }
+
+    // const jsonResponse = req.json();
+    console.log("token sent to firebase");
+
+    try{
+    const dbCollection = collection(firestore, 'Users'); 
+    const docRef = doc(dbCollection, GlobalState.uid);
+
+    // Separate the token ids for devices.
+    if(!isTablet()){
+      await updateDoc(docRef, {tokenID: token});
+    }
+    else{
+      await updateDoc(docRef, {tabletTokenID: token});
     }
 
-    PushNotificationIOS.addNotificationRequest({
-      id: `${GlobalState.uid}/photoReminder`,
-      title: 'Reminder',
-      body: `Hey ${user}, don't forget to take your pix today!`,
-      fireDate: newTime
+    }
+    catch(error){
+      console.log("Firestore Error: " + error);
+    }
+
+    
+  }
+
+
+  // Sending the value of the token to the server to allow for Firebase to send notifications 
+  // using iOS and Android's servers if it differs from the locally stored token.
+  useEffect(() => {
+
+     userDir = `${RNFS.DocumentDirectoryPath}/${GlobalState.uid}`;
+    tokenPath = `${userDir}/tokenPath`;
+    
+    if(userDir.length > 0 && tokenPath.length > 0){
+    const getToken = async () => {
+      
+      const token = await messaging().getToken();
+      console.log("Entered gettoken")
+      const userDirExists = await RNFS.exists(userDir); 
+
+      
+      if(userDirExists){
+        console.log("user directory already exists");
+        const tokenPathExists = await RNFS.exists(tokenPath);
+        if(tokenPathExists){
+          console.log("token path already exists");
+           const tokenObj = await RNFS.readFile(tokenPath);
+           if(token !== tokenObj){
+              sendTokenToFirebase(token);
+           }
+        }
+        else{
+         await RNFS.writeFile(tokenPath, token, 'utf8');
+         sendTokenToFirebase(token);
+        }
+      }
+      else{
+        sendTokenToFirebase(token);
+        await RNFS.mkdir(userDir);
+        await RNFS.writeFile(tokenPath, token, 'utf8');
+      }
+    }
+
+    getToken();
+
+    // If there's a new token, send it to the server and update the local storage with it.
+     messaging().onTokenRefresh(async (newToken) => {
+      await sendTokenToFirebase(newToken);
+
+      const userDirExists = await RNFS.exists(userDir);
+      if(!userDirExists) await RNFS.mkdir(userDir);
+      await RNFS.writeFile(tokenPath, newToken, 'utf8');
     });
   }
+
+  }, [userSignedIn]) 
+ 
+  
+
+  // useEffect(() => {
+  //   PushNotificationIOS.requestPermissions({alert: true, sound: true, badge: true}).then((permission) => {
+
+  //     // Checking if the user took the picture and if so change took picture to true so no 
+  //     // notification will be sent.
+  //    const checkIfPicture = async () => {
+  //       try{
+  //         if(userSignedIn){
+  //           console.log("Checking if the user took a picture!");
+  //           const dbCollection = collection(firestore, 'Users'); 
+  //           const docRef = doc(dbCollection, GlobalState.uid);
+  //           const docSnap = await getDoc(docRef); 
+
+  //           if(docSnap.exists()){
+  //             const user = docSnap.data() as UserDataTypes;
+  //             if(user?.photos.length > 0){
+  //               const photos = user?.photos;
+  //               GlobalState.dataLength = photos.length
+  //               const lastPhoto = photos[photos.length - 1];
+
+  //               // Ensuring the format is the same for accurate comparison
+  //               const now = format(new Date(), 'MM/dd/yy');
+                
+  //               if(lastPhoto.date == now){
+  //                 console.log("Already took their pictures for the day")
+  //                 console.log(photos[photos.length - 1].date + " Date works")
+  //                 setTookPicture(true);
+  //               }
+  //               else{
+  //                 console.log("Hasn't taken picture");
+
+  //                 // Stating whether the user has allowed for push notifications.
+  //                 if(permission.alert){
+  //                   // scheduleNotifications(user?.username);
+  //                 }
+  //               }
+              
+  //             }
+  //           }
+  //        }
+  //       }
+  //       catch(error){
+  //         console.log('error ' + error);
+  //       }
+  //    }
+ 
+  //     checkIfPicture();
+    
+  //   })
+  
+  // }, [userSignedIn])
+
+
+  // const scheduleNotifications = (user: string) => {
+
+  //   console.log("Schedule Notification works!");
+  //   const now = new Date();
+  //   const newTime = new Date();
+
+  //   // 7:30 is the most likely time that someone would want to log weight.
+  //   newTime.setHours(19, 30, 0, 0); 
+
+  //   // Making sure that if the time has already passed then set a reminder
+  //   // for the next day. So it will trigger for the next day even if they
+  //   // don't open the app again.
+  //   if(now > newTime){
+  //     newTime.setDate(newTime.getDate() + 1);
+  //   }
+
+  //   PushNotificationIOS.addNotificationRequest({
+  //     id: `${GlobalState.uid}/photoReminder`,
+  //     title: 'Reminder',
+  //     body: `Hey ${user}, don't forget to take your pix today!`,
+  //     fireDate: newTime
+  //   });
+  // }
 
 
 useEffect(() => {
